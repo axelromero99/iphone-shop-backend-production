@@ -8,8 +8,10 @@ import { SalesModule } from './sales/sales.module';
 import { TechnicalServiceModule } from './technical-service/technical-service.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { CashRegisterModule } from './cash-register/cash-register.module';
-// import { WholesaleModule } from './wholesale/wholesale.module';
+import { WholesaleModule } from './wholesale/wholesale.module';
 // import { ExpensesModule } from './expenses/expenses.module';
+// import { CashTotalModule } from './expenses/cash-total.module'; ?? 
+// import { ProvidersModule } from './expenses/providers.module'; ?? 
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -31,7 +33,7 @@ import databaseConfig from './config/database.config';
     TechnicalServiceModule,
     InventoryModule,
     CashRegisterModule,
-    // WholesaleModule,
+    WholesaleModule,
     // ExpensesModule,
   ],
 })
