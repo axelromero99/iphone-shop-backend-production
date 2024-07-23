@@ -11,19 +11,22 @@ export class Sale {
   products: Product[];
 
   @Prop({ required: true })
-  totalAmount: number;
+  totalAmountUSD: number;
 
   @Prop({ required: true })
+  totalAmountARS: number;
+
+  @Prop({ required: true, type: String, enum: ["efectivo", "tarjeta", "transferencia"] })
   paymentMethod: string;
 
-  @Prop()
-  cardDetails: string;
+  // @Prop()
+  // cardDetails: string;
 
-  @Prop()
-  installments: number;
+  // @Prop()
+  // installments: number;
 
-  @Prop()
-  interestRate: number;
+  // @Prop()
+  // interestRate: number;
 
   @Prop({ default: false })
   isPartialPayment: boolean;
@@ -35,13 +38,20 @@ export class Sale {
   remainingAmount: number;
 
   @Prop({ type: Object })
+  phoneReceived: {
+    model: String,
+    percentage: Number,
+    accesories: [String],
+  };
+
+  @Prop({ type: Object })
   customerInfo: Record<string, any>;
 
   @Prop()
   status: string;
 
-  @Prop()
-  trackingCode: string;
+
+
 }
 
 export const SaleSchema = SchemaFactory.createForClass(Sale);
