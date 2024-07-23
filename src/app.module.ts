@@ -9,7 +9,7 @@ import { TechnicalServiceModule } from './technical-service/technical-service.mo
 import { InventoryModule } from './inventory/inventory.module';
 import { CashRegisterModule } from './cash-register/cash-register.module';
 import { WholesaleModule } from './wholesale/wholesale.module';
-// import { ExpensesModule } from './expenses/expenses.module';
+import { ExpensesModule } from './expenses/expenses.module';
 // import { CashTotalModule } from './expenses/cash-total.module'; ?? 
 // import { ProvidersModule } from './expenses/providers.module'; ?? 
 import databaseConfig from './config/database.config';
@@ -34,7 +34,7 @@ import databaseConfig from './config/database.config';
     InventoryModule,
     CashRegisterModule,
     WholesaleModule,
-    // ExpensesModule,
+    ExpensesModule,
   ],
 })
 export class AppModule { }
