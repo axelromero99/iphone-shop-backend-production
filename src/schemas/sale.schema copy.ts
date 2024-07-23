@@ -51,8 +51,6 @@ export class Sale {
   status: string;
 
 
-  // old ones
-
 
 }
 
