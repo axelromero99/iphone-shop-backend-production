@@ -1,7 +1,7 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
-// import { InventoryItem } from '../../inventory/schemas/inventory-item.schema';
+import { InventoryItem } from './inventory-item.schema';
 
 export type TechnicalServiceDocument = TechnicalService & Document;
 
@@ -25,8 +25,8 @@ export class TechnicalService {
   @Prop()
   color: string;
 
-  // @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'InventoryItem' }] })
-  // usedItems: InventoryItem[];
+  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'InventoryItem' }] })
+  usedItems: InventoryItem[];
 
   @Prop({ required: true })
   repairCost: number;

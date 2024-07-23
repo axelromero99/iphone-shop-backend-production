@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { SalesModule } from './sales/sales.module';
 import { TechnicalServiceModule } from './technical-service/technical-service.module';
-// import { InventoryModule } from './inventory/inventory.module';
+import { InventoryModule } from './inventory/inventory.module';
 // import { CashRegisterModule } from './cash-register/cash-register.module';
 // import { WholesaleModule } from './wholesale/wholesale.module';
 // import { ExpensesModule } from './expenses/expenses.module';
@@ -28,8 +28,8 @@ import databaseConfig from './config/database.config';
     AuthModule,
     ProductsModule,
     SalesModule,
-    // TechnicalServiceModule,
-    // InventoryModule,
+    TechnicalServiceModule,
+    InventoryModule,
     // CashRegisterModule,
     // WholesaleModule,
     // ExpensesModule,

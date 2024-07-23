@@ -5,22 +5,22 @@ import { Model } from 'mongoose';
 import { TechnicalService, TechnicalServiceDocument } from '../schemas/technical-service.schema';
 // import { CreateTechnicalServiceDto } from './dto/create-technical-service.dto';
 // import { UpdateTechnicalServiceDto } from './dto/update-technical-service.dto';
-// import { InventoryService } from '../inventory/inventory.service';
+import { InventoryService } from '../inventory/inventory.service';
 
 @Injectable()
 export class TechnicalServiceService {
     constructor(
         @InjectModel(TechnicalService.name) private technicalServiceModel: Model<TechnicalServiceDocument>,
-        // private inventoryService: InventoryService,
+        private inventoryService: InventoryService,
     ) { }
 
     async create(createTechnicalServiceDto: any): Promise<TechnicalService> {
         const createdService = new this.technicalServiceModel(createTechnicalServiceDto);
 
         // Update inventory for used items
-        // for (const item of createTechnicalServiceDto.usedItems) {
-        //     await this.inventoryService.updateStock(item.toString(), -1);
-        // }
+        for (const item of createTechnicalServiceDto.usedItems) {
+            await this.inventoryService.updateStock(item.toString(), -1);
+        }
 
         return createdService.save();
     }
