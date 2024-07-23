@@ -1,0 +1,115 @@
+import { Controller, Get, Post, Body, UseGuards, Req, Headers, SetMetadata } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { IncomingHttpHeaders } from 'http';
+
+import { AuthService } from './auth.service';
+import { RawHeaders, GetUser, Auth } from './decorators';
+import { RoleProtected } from './decorators/role-protected.decorator';
+
+import { CreateUserDto, LoginUserDto } from './dto';
+import { User } from './schemas/user.schema';
+import { UserRoleGuard } from './guards/user-role.guard';
+import { ValidRoles } from './interfaces';
+// import { Historial } from 'src/historial-ondev-future/historial.decorator';
+
+@Controller('auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) { }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {
+    // initiates the Google OAuth2 login flow
+  }
+
+
+  @Post('register')
+  // createUser(@Body() createUserDto: CreateUserDto, @Historial() historialData: any) {
+  createUser(@Body() createUserDto: CreateUserDto) {
+
+    return this.authService.create(createUserDto);
+  }
+
+  @Post('login')
+  loginUser(@Body() loginUserDto: LoginUserDto) {
+    return this.authService.login(loginUserDto);
+  }
+
+  @Get('check-status')
+  @Auth()
+  checkAuthStatus(
+    @GetUser() user: any
+  ) {
+    return this.authService.checkAuthStatus(user);
+  }
+
+  // Password reset endpoints
+  @Post('password-reset')
+  requestPasswordReset(@Body('email') email: string) {
+    return this.authService.sendPasswordResetCode(email, 'email');
+  }
+
+  @Post('password-reset/verify')
+  verifyResetCode(@Body('email') email: string, @Body('code') code: string) {
+    return this.authService.verifyPasswordResetCode(email, code);
+  }
+
+  @Post('password-reset/confirm')
+  resetPassword(@Body('token') token: string, @Body('newPassword') newPassword: string) {
+    return this.authService.resetPassword(token, newPassword);
+  }
+
+
+  @Get('private')
+  @UseGuards(AuthGuard())
+  testingPrivateRoute(
+    @Req() request: Express.Request,
+    @GetUser() user: any,
+    @GetUser('email') userEmail: string,
+
+    @RawHeaders() rawHeaders: string[],
+    @Headers() headers: IncomingHttpHeaders,
+  ) {
+
+
+    return {
+      ok: true,
+      message: 'Hola Mundo Private',
+      user,
+      userEmail,
+      rawHeaders,
+      headers
+    }
+  }
+
+
+  // @SetMetadata('roles', ['admin','super-user'])
+
+  @Get('private2')
+  @RoleProtected(ValidRoles.superUser, ValidRoles.admin)
+  @UseGuards(AuthGuard(), UserRoleGuard)
+  privateRoute2(
+    @GetUser() user: any
+  ) {
+
+    return {
+      ok: true,
+      user
+    }
+  }
+
+  @Get('private3')
+  @Auth(ValidRoles.admin)
+  privateRoute3(
+    @GetUser() user: any
+  ) {
+
+    return {
+      ok: true,
+      user
+    }
+  }
+
+
+
+}
