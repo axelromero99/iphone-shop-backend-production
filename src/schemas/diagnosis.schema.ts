@@ -1,32 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Model } from 'mongoose';
 
-// export interface IDiagnosis extends Document {
-//   screws?: boolean;
-//   powerButton?: boolean;
-//   charging?: boolean;
-//   homeButton?: boolean;
-//   touchFaceID?: boolean;
-//   trueTone?: boolean;
-//   flash?: boolean;
-//   cameraT1?: boolean;
-//   cameraT2?: boolean;
-//   cameraT3?: boolean;
-//   frontCamera?: boolean;
-//   gyroscope?: boolean;
-//   signal?: boolean;
-//   imei?: boolean;
-//   proximitySensor?: boolean;
-//   bottomSpeaker?: boolean;
-//   topSpeaker?: boolean;
-//   vibrator?: boolean;
-//   volume?: boolean;
-//   batteryCondition?: number;
-//   wifi?: boolean;
-//   microphone?: boolean;
-//   muteSound?: boolean;
-//   touch?: boolean;
-// }
+
 
 @Schema()
 export class Diagnosis {

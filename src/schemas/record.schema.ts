@@ -1,43 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Model, Schema as MongooseSchema } from 'mongoose';
 import { customAlphabet } from 'nanoid';
-import { Diagnosis, DiagnosisSchema, IDiagnosis } from './diagnosis.schema';
+import { Diagnosis, DiagnosisSchema } from './diagnosis.schema';
 
 
 
 const customAlphabetWithoutDashUnderscore = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 11);
 
-// export interface IRecord extends Document {
-//   model: string;
-//   others: string;
-//   color: string;
-//   paymentMethod: string;
-//   intakeReason: string;
-//   details: string;
-//   capacity: string;
-//   downPayment: string;
-//   idNumber: string;
-//   paymentReceipt: string;
-//   trackingStatus: string;
-//   fullName: string;
-//   phone: string;
-//   intakeDate: Date;
-//   releaseDate: Date;
-//   trackingCode: string;
-//   imei: string;
-//   pin: string;
-//   images: string[];
-//   paymentStatus: string[];
-//   price: string;
-//   downPaymentMade: boolean;
-//   remainingAmount: string;
-//   remarks: string;
-//   instagram: string;
-//   email: string;
-//   initialDiagnosis?: IDiagnosis | null;
-//   finalDiagnosis?: IDiagnosis | null;
-//   deviceWarranty: string;
-// }
+
 
 @Schema({ timestamps: true })
 export class Record {
