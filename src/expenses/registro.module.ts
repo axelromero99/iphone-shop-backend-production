@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RegistroController } from './registro.controller';
 import { RegistroService } from './registro.service';
-import { Registro, registroSchema } from '../models/registro.schema';
+import { Registro, registroSchema } from '../schemas/registro.schema';
 import { CommonModule } from '../common/common.module';
 
 @Module({

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Registro } from '../models/registro.schema';
+import { Registro } from '../schemas/registro.schema';
 // import { CreateRegistroDto, UpdateRegistroDto, DiagnosticoDto } from './dto/registro.dto';
 import { PaginationService } from '../common/services/pagination.service';
 import { PaginationDto } from '../common/dtos/pagination.dto';
