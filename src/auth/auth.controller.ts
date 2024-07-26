@@ -16,12 +16,6 @@ import { ValidRoles } from './interfaces';
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req) {
-    // initiates the Google OAuth2 login flow
-  }
-
 
   @Post('register')
   // createUser(@Body() createUserDto: CreateUserDto, @Historial() historialData: any) {
