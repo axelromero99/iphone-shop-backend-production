@@ -5,8 +5,8 @@ import { Model } from 'mongoose';
 
 import * as bcrypt from 'bcrypt';
 
-import { User, UserSchemaName } from './schemas/user.schema';
-import { LoginUserDto, CreateUserDto } from './dto';
+import { User, UserSchemaName } from '../schemas/user.schema';
+// import { LoginUserDto, CreateUserDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { MailService } from '../mail/mail.service';
 
@@ -19,7 +19,7 @@ export class AuthService {
     private mailService: MailService
   ) { }
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: any) {
     try {
       const { password, ...userData } = createUserDto;
       const hashedPassword = bcrypt.hashSync(password, 10);
@@ -36,7 +36,7 @@ export class AuthService {
     }
   }
 
-  async login(loginUserDto: LoginUserDto) {
+  async login(loginUserDto: any) {
     const { email, password } = loginUserDto;
     const user = await this.userModel.findOne({ email }).select('+password');
     if (!user) {

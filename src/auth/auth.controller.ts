@@ -6,8 +6,7 @@ import { AuthService } from './auth.service';
 import { RawHeaders, GetUser, Auth } from './decorators';
 import { RoleProtected } from './decorators/role-protected.decorator';
 
-import { CreateUserDto, LoginUserDto } from './dto';
-import { User } from './schemas/user.schema';
+// import { CreateUserDto, LoginUserDto } from './dto';
 import { UserRoleGuard } from './guards/user-role.guard';
 import { ValidRoles } from './interfaces';
 // import { Historial } from 'src/historial-ondev-future/historial.decorator';
@@ -19,13 +18,13 @@ export class AuthController {
 
   @Post('register')
   // createUser(@Body() createUserDto: CreateUserDto, @Historial() historialData: any) {
-  createUser(@Body() createUserDto: CreateUserDto) {
+  createUser(@Body() createUserDto: any) {
 
     return this.authService.create(createUserDto);
   }
 
   @Post('login')
-  loginUser(@Body() loginUserDto: LoginUserDto) {
+  loginUser(@Body() loginUserDto: any) {
     return this.authService.login(loginUserDto);
   }
 

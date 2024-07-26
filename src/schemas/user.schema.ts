@@ -1,22 +1,14 @@
 import * as mongoose from 'mongoose';
 
-interface PaymentMethod {
-    type: 'mercadopago_checkout_pro';
-    details: {
-        state: string;
-    };
-}
 
 export interface UserDocument extends mongoose.Document {
     email: string;
     password: string;
     fullName: string;
     isActive: boolean;
-    paymentMethods: PaymentMethod[];
     roles: string[];
     passwordResetCode: string;
     passwordResetExpiry: Date;
-    establishment: mongoose.Schema.Types.ObjectId;
 }
 
 export const UserSchema = new mongoose.Schema({
@@ -36,10 +28,15 @@ export const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
     roles: {
         type: [String],
-        enum: ['admin', 'vendedor', 'tecnico', 'cliente'],
-        default: ['tecnico']
+        enum: ['admin', 'vendedor', 'tecnico'],
+        default: ['tecnico'],
+        required: true
     },
     passwordResetCode: {
         type: String,
@@ -56,12 +53,6 @@ export const UserSchema = new mongoose.Schema({
 UserSchema.pre('save', function (next) {
     this.email = this.email.toLowerCase().trim();
     next();
-});
-
-UserSchema.virtual('products', {
-    ref: 'Product',
-    localField: '_id',
-    foreignField: 'user'
 });
 
 export const User = mongoose.model<UserDocument>('User', UserSchema);
