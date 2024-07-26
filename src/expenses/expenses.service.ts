@@ -5,10 +5,22 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 // import { CreateExpenseDto } from './dto/create-expense.dto';
 // import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
+
+import { PaginationService } from 'src/common/services/pagination.service';
+
+
 
 @Injectable()
 export class ExpensesService {
-    constructor(@InjectModel('Expense') private expenseModel: Model<any>) { }
+    constructor(@InjectModel('Expense') private expenseModel: Model<any>,
+        private readonly paginationService: PaginationService,
+
+    ) { }
+
+    async findPaginated(paginationDto: PaginationDto) {
+        return this.paginationService.paginate(this.expenseModel, paginationDto);
+    }
 
     async create(createExpenseDto: any) {
         const createdExpense = new this.expenseModel(createExpenseDto);

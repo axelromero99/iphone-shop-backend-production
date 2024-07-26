@@ -5,10 +5,12 @@ import { SalesService } from './sales.service';
 import { SalesController } from './sales.controller';
 import { Sale, SaleSchema } from '../schemas/sale.schema';
 import { ProductsModule } from '../products/products.module';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: Sale.name, schema: SaleSchema }]),
+        CommonModule,
         ProductsModule,
     ],
     providers: [SalesService],

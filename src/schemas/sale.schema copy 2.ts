@@ -25,21 +25,16 @@ export class Sale {
 
   @Prop({ type: Object, required: true })
   payment: {
-    totalPriceUSD: number;
-    totalPriceARS: number;
-    isPrepurchase: boolean;
-    paymentDetails: [
-      {
-        method: string; // 'efectivo', 'dolares', 'transferencia'
-        amountUSD: number;
-        amountARS: number;
-        date: Date;
-        receipt: string; // Optional, for receipt number or reference
-      }
-    ],
-    remainingAmountUSD: number;
-    remainingAmountARS: number;
-    isFullyPaid: boolean;
+    price: string;
+    totalAmountUSD: number;
+    totalAmountARS: number;
+    paymentMethod: string;
+    downPaymentAmount: string;
+    isDownPaymentMade: boolean;
+    remainingAmount: string;
+    isPartialPayment: boolean;
+    amountPaid: number;
+    paymentReceipt: string;
   };
 
   @Prop({ type: Object, required: true })

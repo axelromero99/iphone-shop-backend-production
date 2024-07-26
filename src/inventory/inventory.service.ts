@@ -6,12 +6,23 @@ import { Model } from 'mongoose';
 import { InventoryItem, InventoryItemDocument } from '../schemas/inventory-item.schema';
 // import { CreateInventoryItemDto } from './dto/create-inventory-item.dto';
 // import { UpdateInventoryItemDto } from './dto/update-inventory-item.dto';
+import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
+
+import { PaginationService } from 'src/common/services/pagination.service';
+
+
 
 @Injectable()
 export class InventoryService {
     constructor(
         @InjectModel(InventoryItem.name) private inventoryItemModel: Model<InventoryItemDocument>,
+        private readonly paginationService: PaginationService,
+
     ) { }
+
+    async findPaginated(paginationDto: PaginationDto) {
+        return this.paginationService.paginate(this.inventoryItemModel, paginationDto);
+    }
 
     async create(createInventoryItemDto: any): Promise<InventoryItem> {
         const createdItem = new this.inventoryItemModel(createInventoryItemDto);

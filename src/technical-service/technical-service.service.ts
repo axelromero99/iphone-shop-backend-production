@@ -6,14 +6,23 @@ import { TechnicalService, TechnicalServiceDocument } from '../schemas/technical
 // import { CreateTechnicalServiceDto } from './dto/create-technical-service.dto';
 // import { UpdateTechnicalServiceDto } from './dto/update-technical-service.dto';
 import { InventoryService } from '../inventory/inventory.service';
+import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
+
+import { PaginationService } from 'src/common/services/pagination.service';
+
+
 
 @Injectable()
 export class TechnicalServiceService {
     constructor(
         @InjectModel(TechnicalService.name) private technicalServiceModel: Model<TechnicalServiceDocument>,
         private inventoryService: InventoryService,
-    ) { }
+        private readonly paginationService: PaginationService,
 
+    ) { }
+    async findPaginated(paginationDto: PaginationDto) {
+        return this.paginationService.paginate(this.technicalServiceModel, paginationDto);
+    }
     async create(createTechnicalServiceDto: any): Promise<TechnicalService> {
         const createdService = new this.technicalServiceModel(createTechnicalServiceDto);
 

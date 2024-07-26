@@ -4,10 +4,22 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 // import { CreateCashRegisterDto } from './dto/create-cash-register.dto';
 // import { UpdateCashRegisterDto } from './dto/update-cash-register.dto';
+import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
+
+import { PaginationService } from 'src/common/services/pagination.service';
+
+
 
 @Injectable()
 export class CashRegisterService {
-    constructor(@InjectModel('CashRegister') private cashRegisterModel: Model<any>) { }
+    constructor(@InjectModel('CashRegister') private cashRegisterModel: Model<any>,
+        private readonly paginationService: PaginationService,
+    ) { }
+
+
+    async findPaginated(paginationDto: PaginationDto) {
+        return this.paginationService.paginate(this.cashRegisterModel, paginationDto);
+    }
 
     async create(createCashRegisterDto: any) {
         const createdCashRegister = new this.cashRegisterModel(createCashRegisterDto);

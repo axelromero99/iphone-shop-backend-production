@@ -5,11 +5,13 @@ import { TechnicalServiceService } from './technical-service.service';
 import { TechnicalServiceController } from './technical-service.controller';
 import { TechnicalService, TechnicalServiceSchema } from '../schemas/technical-service.schema';
 import { InventoryModule } from '../inventory/inventory.module';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: TechnicalService.name, schema: TechnicalServiceSchema }]),
         InventoryModule,
+        CommonModule,
     ],
     providers: [TechnicalServiceService],
     controllers: [TechnicalServiceController],

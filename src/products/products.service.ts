@@ -6,10 +6,24 @@ import { Model } from 'mongoose';
 import { Product, ProductDocument } from '../schemas/product.schema';
 // import { CreateProductDto } from './dto/create-product.dto';
 // import { UpdateProductDto } from './dto/update-product.dto';
+import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
+
+import { PaginationService } from 'src/common/services/pagination.service';
+
+
+
 
 @Injectable()
 export class ProductsService {
-    constructor(@InjectModel(Product.name) private productModel: Model<ProductDocument>) { }
+    constructor(@InjectModel(Product.name) private productModel: Model<ProductDocument>,
+        private readonly paginationService: PaginationService,
+
+    ) { }
+
+
+    async findPaginated(paginationDto: PaginationDto) {
+        return this.paginationService.paginate(this.productModel, paginationDto);
+    }
 
     async create(createProductDto: any): Promise<Product> {
         const createdProduct = new this.productModel(createProductDto);

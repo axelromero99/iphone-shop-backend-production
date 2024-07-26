@@ -7,12 +7,17 @@ import { Sale, SaleDocument } from '../schemas/sale.schema';
 // import { CreateSaleDto } from './dto/create-sale.dto';
 // import { UpdateSaleDto } from './dto/update-sale.dto';
 import { ProductsService } from '../products/products.service';
+import { PaginationService } from 'src/common/services/pagination.service';
+import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
+
 
 @Injectable()
 export class SalesService {
     constructor(
         @InjectModel(Sale.name) private saleModel: Model<SaleDocument>,
         private productsService: ProductsService,
+        private readonly paginationService: PaginationService,
+
     ) { }
 
     async create(createSaleDto: any): Promise<Sale> {
@@ -28,6 +33,10 @@ export class SalesService {
 
     async findAll(): Promise<Sale[]> {
         return this.saleModel.find().populate('products').exec();
+    }
+
+    async findPaginated(paginationDto: PaginationDto) {
+        return this.paginationService.paginate(this.saleModel, paginationDto);
     }
 
     async findOne(id: string): Promise<Sale> {
