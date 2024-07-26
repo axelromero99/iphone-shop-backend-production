@@ -41,4 +41,8 @@ export class CashRegisterService {
     // async remove(id: string) {
     //     return this.cashRegisterModel.findByIdAndRemove(id).exec();
     // }
+
+    // async remove(id: string) {
+    //     return this.cashRegisterModel.findByIdAndRemove(id).exec();
+    // }
 }

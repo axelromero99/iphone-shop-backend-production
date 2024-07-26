@@ -27,9 +27,10 @@ export class TechnicalServiceService {
         const createdService = new this.technicalServiceModel(createTechnicalServiceDto);
 
         // Update inventory for used items
-        for (const item of createTechnicalServiceDto.usedItems) {
-            await this.inventoryService.updateStock(item.toString(), -1);
-        }
+        // TODO: Uncomment this code when inventory service is implemented
+        // for (const item of createTechnicalServiceDto.usedItems) {
+        //     await this.inventoryService.updateStock(item.toString(), -1);
+        // }
 
         return createdService.save();
     }
@@ -59,3 +60,4 @@ export class TechnicalServiceService {
         return result;
     }
 }
+

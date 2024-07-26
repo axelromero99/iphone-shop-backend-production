@@ -11,7 +11,6 @@ export type SortOrder = -1 | 1;
 
 @Schema()
 export class Diagnosis {
-  @Prop() description?: boolean;
   @Prop() screws?: boolean;
   @Prop() powerButton?: boolean;
   @Prop() charging?: boolean;
