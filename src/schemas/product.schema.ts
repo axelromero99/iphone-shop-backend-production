@@ -5,7 +5,8 @@ import { Document } from 'mongoose';
 
 export type ProductDocument = Product & Document;
 
-@Schema()
+
+@Schema({ timestamps: true })
 export class Product {
   @Prop({ required: true })
   name: string;

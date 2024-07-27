@@ -3,7 +3,7 @@ import { Document, Model } from 'mongoose';
 
 
 
-@Schema()
+@Schema({ timestamps: true })
 export class Diagnosis {
   @Prop()
   screws?: boolean;

@@ -9,7 +9,7 @@ export type SortOrder = -1 | 1;
 // Custom alphabet excluding "-" and "_"
 // const customAlphabetWithoutDashUnderscore = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 11);
 
-@Schema()
+@Schema({ timestamps: true })
 export class Diagnosis {
   @Prop() description?: boolean;
   @Prop() screws?: boolean;
