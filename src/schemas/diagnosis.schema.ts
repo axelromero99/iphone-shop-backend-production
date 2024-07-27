@@ -79,6 +79,9 @@ export class Diagnosis {
 
   @Prop({ type: Date, required: true })
   diagnosisDate: Date;
+
+  @Prop({ default: false })
+  isDeleted: boolean;
 }
 
 export const DiagnosisSchema = SchemaFactory.createForClass(Diagnosis);

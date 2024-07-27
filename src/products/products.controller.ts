@@ -1,6 +1,6 @@
 
 // src/products/products.controller.ts
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 // import { CreateProductDto } from './dto/create-product.dto';
 // import { UpdateProductDto } from './dto/update-product.dto';
@@ -29,8 +29,12 @@ export class ProductsController {
         return this.productsService.update(id, updateProductDto);
     }
 
-    // @Delete(':id')
-    // remove(@Param('id') id: string) {
-    //     return this.productsService.remove(id);
-    // }
+    @Delete(':id')
+    delete(@Param('id') id: string, @Query('permanent') permanent: boolean) {
+        if (permanent) {
+            return this.productsService.permanentDelete(id);
+        } else {
+            return this.productsService.softDelete(id);
+        }
+    }
 }

@@ -30,6 +30,9 @@ export class Expense extends Document {
 
   @Prop()
   recurrenceInterval: string;
+
+  @Prop({ default: false })
+  isDeleted: boolean;
 }
 
 export const ExpenseSchema = SchemaFactory.createForClass(Expense);

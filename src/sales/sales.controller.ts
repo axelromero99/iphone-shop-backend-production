@@ -1,6 +1,6 @@
 
 // src/sales/sales.controller.ts
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { SalesService } from './sales.service';
 // import { CreateSaleDto } from './dto/create-sale.dto';
 // import { UpdateSaleDto } from './dto/update-sale.dto';
@@ -30,8 +30,12 @@ export class SalesController {
         return this.salesService.update(id, updateSaleDto);
     }
 
-    // @Delete(':id')
-    // remove(@Param('id') id: string) {
-    //     return this.salesService.remove(id);
-    // }
+    @Delete(':id')
+    delete(@Param('id') id: string, @Query('permanent') permanent: boolean) {
+        if (permanent) {
+            return this.salesService.permanentDelete(id);
+        } else {
+            return this.salesService.softDelete(id);
+        }
+    }
 }

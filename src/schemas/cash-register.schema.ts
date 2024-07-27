@@ -37,6 +37,9 @@ export class CashRegister extends Document {
 
   @Prop()
   notes: string;
+
+  @Prop({ default: false })
+  isDeleted: boolean;
 }
 
 export const CashRegisterSchema = SchemaFactory.createForClass(CashRegister);

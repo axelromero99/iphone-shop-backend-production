@@ -27,6 +27,9 @@ export class Provider extends Document {
 
   @Prop([String])
   productCategories: string[];
+
+  @Prop({ default: false })
+  isDeleted: boolean;
 }
 
 export const ProviderSchema = SchemaFactory.createForClass(Provider);

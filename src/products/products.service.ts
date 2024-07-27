@@ -1,6 +1,6 @@
 
 // src/products/products.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product, ProductDocument } from '../schemas/product.schema';
@@ -42,9 +42,22 @@ export class ProductsService {
         return this.productModel.findByIdAndUpdate(id, updateProductDto, { new: true }).exec();
     }
 
-    // async remove(id: string): Promise<Product> {
-    //     return this.productModel.findByIdAndRemove(id).exec();
-    // }
+    async softDelete(id: string): Promise<Product> {
+        const sale = await this.productModel.findById(id);
+        if (!sale) {
+            throw new NotFoundException(`Product with ID "${id}" not found`);
+        }
+        sale.isDeleted = true;
+        return sale.save();
+    }
+
+    async permanentDelete(id: string): Promise<Product> {
+        const sale = await this.productModel.findByIdAndDelete(id).exec();
+        if (!sale) {
+            throw new NotFoundException(`Product with ID "${id}" not found`);
+        }
+        return sale;
+    }
 
     async updateStock(id: string, quantity: number): Promise<Product> {
         return this.productModel.findByIdAndUpdate(

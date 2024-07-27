@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CashRegisterService } from './cash-register.service';
 // import { CreateCashRegisterDto } from './dto/create-cash-register.dto';
 // import { UpdateCashRegisterDto } from './dto/update-cash-register.dto';
@@ -28,8 +28,12 @@ export class CashRegisterController {
         return this.cashRegisterService.update(id, updateCashRegisterDto);
     }
 
-    // @Delete(':id')
-    // remove(@Param('id') id: string) {
-    //     return this.cashRegisterService.remove(id);
-    // }
+    @Delete(':id')
+    delete(@Param('id') id: string, @Query('permanent') permanent: boolean) {
+        if (permanent) {
+            return this.cashRegisterService.permanentDelete(id);
+        } else {
+            return this.cashRegisterService.softDelete(id);
+        }
+    }
 }

@@ -42,6 +42,9 @@ export class Product {
 
   @Prop({ type: [String] })
   images: string[];
+
+  @Prop({ default: false })
+  isDeleted: boolean;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

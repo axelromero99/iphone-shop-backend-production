@@ -1,5 +1,5 @@
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TechnicalService, TechnicalServiceDocument } from '../schemas/technical-service.schema';
@@ -51,13 +51,21 @@ export class TechnicalServiceService {
     //     return this.technicalServiceModel.findByIdAndRemove(id).exec();
     // }
 
-    async generateTrackingCode(): Promise<string> {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        for (let i = 0; i < 8; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
+    async softDelete(id: string): Promise<TechnicalService> {
+        const sale = await this.technicalServiceModel.findById(id);
+        if (!sale) {
+            throw new NotFoundException(`Sale with ID "${id}" not found`);
         }
-        return result;
+        sale.isDeleted = true;
+        return sale.save();
+    }
+
+    async permanentDelete(id: string): Promise<TechnicalService> {
+        const sale = await this.technicalServiceModel.findByIdAndDelete(id).exec();
+        if (!sale) {
+            throw new NotFoundException(`Sale with ID "${id}" not found`);
+        }
+        return sale;
     }
 }
 

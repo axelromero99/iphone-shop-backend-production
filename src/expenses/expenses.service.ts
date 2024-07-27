@@ -1,6 +1,6 @@
 
 // src/expenses/expenses.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 // import { CreateExpenseDto } from './dto/create-expense.dto';
@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
 
 import { PaginationService } from 'src/common/services/pagination.service';
+import { Expense } from 'src/schemas/expense.schema';
 
 
 
@@ -39,7 +40,21 @@ export class ExpensesService {
         return this.expenseModel.findByIdAndUpdate(id, updateExpenseDto, { new: true }).exec();
     }
 
-    // async remove(id: string) {
-    //     return this.expenseModel.findByIdAndRemove(id).exec();
-    // }
+    async softDelete(id: string): Promise<Expense> {
+        const expense = await this.expenseModel.findById(id);
+        if (!expense) {
+            throw new NotFoundException(`InventoryItem with ID "${id}" not found`);
+        }
+        expense.isDeleted = true;
+        return expense.save();
+    }
+
+    async permanentDelete(id: string): Promise<Expense> {
+        const expense = await this.expenseModel.findByIdAndDelete(id).exec();
+        if (!expense) {
+            throw new NotFoundException(`Product with ID "${id}" not found`);
+        }
+        return expense;
+    }
+
 }

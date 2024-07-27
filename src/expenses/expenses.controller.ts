@@ -1,7 +1,7 @@
 
 
 // src/expenses/expenses.controller.ts
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
 // import { CreateExpenseDto } from './dto/create-expense.dto';
 // import { UpdateExpenseDto } from './dto/update-expense.dto';
@@ -30,8 +30,12 @@ export class ExpensesController {
         return this.expensesService.update(id, updateExpenseDto);
     }
 
-    // @Delete(':id')
-    // remove(@Param('id') id: string) {
-    //     return this.expensesService.remove(id);
-    // }
+    @Delete(':id')
+    delete(@Param('id') id: string, @Query('permanent') permanent: boolean) {
+        if (permanent) {
+            return this.expensesService.permanentDelete(id);
+        } else {
+            return this.expensesService.softDelete(id);
+        }
+    }
 }

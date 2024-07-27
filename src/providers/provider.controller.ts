@@ -6,5 +6,8 @@ import { ProviderService } from './provider.service';
 export class ProviderController {
     constructor(private readonly providerService: ProviderService) { }
 
+
+
+
     // Implementa endpoints para manejar proveedores, clientes mayoristas y órdenes mayoristas
 }

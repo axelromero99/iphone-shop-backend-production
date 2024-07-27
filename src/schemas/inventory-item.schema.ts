@@ -32,6 +32,9 @@ export class InventoryItem {
 
   @Prop({ type: Object })
   attributes: Record<string, any>;
+
+  @Prop({ default: false })
+  isDeleted: boolean;
 }
 
 export const InventoryItemSchema = SchemaFactory.createForClass(InventoryItem);

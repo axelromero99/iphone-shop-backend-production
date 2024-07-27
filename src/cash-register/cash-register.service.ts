@@ -1,5 +1,5 @@
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 // import { CreateCashRegisterDto } from './dto/create-cash-register.dto';
@@ -7,7 +7,7 @@ import { Model } from 'mongoose';
 import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
 
 import { PaginationService } from 'src/common/services/pagination.service';
-
+import { CashRegister } from 'src/schemas/cash-register.schema';
 
 
 @Injectable()
@@ -38,11 +38,20 @@ export class CashRegisterService {
         return this.cashRegisterModel.findByIdAndUpdate(id, updateCashRegisterDto, { new: true }).exec();
     }
 
-    // async remove(id: string) {
-    //     return this.cashRegisterModel.findByIdAndRemove(id).exec();
-    // }
+    async softDelete(id: string): Promise<CashRegister> {
+        const cashRegister = await this.cashRegisterModel.findById(id);
+        if (!cashRegister) {
+            throw new NotFoundException(`InventoryItem with ID "${id}" not found`);
+        }
+        cashRegister.isDeleted = true;
+        return cashRegister.save();
+    }
 
-    // async remove(id: string) {
-    //     return this.cashRegisterModel.findByIdAndRemove(id).exec();
-    // }
+    async permanentDelete(id: string): Promise<CashRegister> {
+        const cashRegister = await this.cashRegisterModel.findByIdAndDelete(id).exec();
+        if (!cashRegister) {
+            throw new NotFoundException(`Product with ID "${id}" not found`);
+        }
+        return cashRegister;
+    }
 }

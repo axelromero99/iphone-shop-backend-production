@@ -76,6 +76,9 @@ export class Sale {
 
   @Prop({ type: Object })
   customerInfo: Record<string, any>;
+
+  @Prop({ default: false })
+  isDeleted: boolean;
 }
 
 export const SaleSchema = SchemaFactory.createForClass(Sale);

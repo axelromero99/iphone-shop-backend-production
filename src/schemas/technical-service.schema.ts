@@ -85,6 +85,9 @@ export class TechnicalService extends Document {
 
   @Prop({ type: Diagnosis })
   secondDiagnosis?: Diagnosis;
+
+  @Prop({ default: false })
+  isDeleted: boolean;
 }
 
 export const DiagnosisSchema = SchemaFactory.createForClass(Diagnosis);
