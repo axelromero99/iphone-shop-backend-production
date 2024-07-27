@@ -11,16 +11,17 @@ export class PaginationDto {
     @IsOptional()
     @IsPositive()
     @Type(() => Number)
-    limit?: number = 10;
+    limit?: number;
 
     @IsOptional()
-    @Min(0)
+    @IsPositive()
     @Type(() => Number)
-    offset?: number = 0;
+    offset?: number;
 
     @IsOptional()
     @IsString()
     sortField?: string;
+
 
     @IsOptional()
     @IsEnum(SortOrder)
@@ -36,6 +37,9 @@ export class PaginationDto {
     searchValue?: string;
 
     @IsOptional()
-    @IsString()
-    useRegex?: string = 'true';
+    @IsBoolean()
+    @Type(() => Boolean)
+    useRegex?: boolean;
 }
+
+

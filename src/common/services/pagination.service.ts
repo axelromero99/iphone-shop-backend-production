@@ -1,61 +1,79 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Document } from 'mongoose';
 import { PaginationDto } from '../dtos/pagination.dto';
 
 @Injectable()
 export class PaginationService {
-    async paginate<T>(
-        model: Model<any>,
+    async paginate<T extends Document>(
+        model: Model<T>,
         paginationDto: PaginationDto,
     ) {
         const {
-            useRegex, limit, offset, sortField, sortOrder, searchFields, searchValue,
+            limit = 10,
+            offset = 0,
+            sortField,
+            sortOrder,
+            searchFields,
+            searchValue,
+            useRegex = true,
         } = paginationDto;
 
         let query = model.find();
 
-        if (useRegex === 'true') {
-            if (searchFields && searchFields.length > 0 && searchValue) {
-                const searchConditions = searchFields.map(field => ({
-                    [field]: { $regex: searchValue, $options: 'i' },
-                }));
-                query = query.where({ $or: searchConditions });
-            }
-        } else {
-            if (searchFields && searchFields.length > 0 && searchValue) {
-                const searchConditions = searchFields.map(field => ({
-                    [field]: searchValue
-                }));
-                query = query.where({ $or: searchConditions });
-            }
+        // Apply search
+        if (searchFields && searchFields.length > 0 && searchValue) {
+            const searchConditions = searchFields.map(field =>
+                this.createSearchCondition(field, searchValue, useRegex)
+            );
+            query = query.or(searchConditions);
         }
 
-
+        // Apply sorting
         if (sortField) {
-            const sortDirection = sortOrder === 'ASC' ? 1 : -1;
+            const sortDirection = sortOrder === 'DESC' ? -1 : 1;
             query = query.sort({ [sortField]: sortDirection });
         }
 
-        const resultsQuery = query.skip(offset).limit(limit);
-        const countQuery = model.countDocuments(query);
+        // Execute query
+        const totalCount = await model.countDocuments(query);
+        const results = await query.skip(offset).limit(limit).exec();
 
-        const [results, totalCount] = await Promise.all([
-            resultsQuery.exec(),
-            countQuery,
-        ]);
-
+        // Calculate pagination metadata
         const pageCount = Math.ceil(totalCount / limit);
         const currentPage = Math.floor(offset / limit) + 1;
-        const hasNextPage = limit * currentPage < totalCount;
+        const hasNextPage = currentPage < pageCount;
         const hasPreviousPage = currentPage > 1;
 
         return {
             data: results,
-            totalCount,
-            pageCount,
-            currentPage,
-            hasNextPage,
-            hasPreviousPage,
+            metadata: {
+                totalCount,
+                pageCount,
+                currentPage,
+                hasNextPage,
+                hasPreviousPage,
+                limit,
+                offset,
+            },
         };
+    }
+
+    private createSearchCondition(field: string, searchValue: string, useRegex: boolean): any {
+        const fieldParts = field.split('.');
+        let condition = {};
+        let currentLevel = condition;
+
+        fieldParts.forEach((part, index) => {
+            if (index === fieldParts.length - 1) {
+                currentLevel[part] = useRegex
+                    ? { $regex: searchValue, $options: 'i' }
+                    : searchValue;
+            } else {
+                currentLevel[part] = {};
+                currentLevel = currentLevel[part];
+            }
+        });
+
+        return condition;
     }
 }

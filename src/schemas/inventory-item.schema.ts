@@ -22,7 +22,7 @@ export class InventoryItem {
   sellingPrice: number;
 
   @Prop()
-  supplier: string;
+  provider: string;
 
   @Prop()
   sku: string;
