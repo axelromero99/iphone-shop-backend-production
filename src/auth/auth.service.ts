@@ -133,6 +133,9 @@ export class AuthService {
     }
   }
 
+  async findById(id: string) {
+    return this.userModel.findById(id);
+  }
 
   private handleDBErrors(error: any): never {
     if (error.code === 11000) { // MongoDB duplicate key error

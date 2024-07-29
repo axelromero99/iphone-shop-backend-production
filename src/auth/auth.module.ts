@@ -36,6 +36,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 
 
   ],
-  exports: [MongooseModule, JwtStrategy, PassportModule, JwtModule]
+  exports: [MongooseModule, JwtStrategy, PassportModule, JwtModule, AuthService]
+
 })
 export class AuthModule { }

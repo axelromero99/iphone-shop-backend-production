@@ -19,6 +19,9 @@ export class AuditLog {
   userId: string;
 
   @Prop({ type: Object })
+  user: Record<string, any>;  // Aquí guardaremos el objeto de usuario completo
+
+  @Prop({ type: Object })
   response: Record<string, any>;
 
   @Prop()
