@@ -18,7 +18,17 @@ import cloudinaryConfig from './config/cloudinary.config';
 
 import databaseConfig from './config/database.config';
 
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AuditLogInterceptor } from './common/services/audit-log.interceptor';
+
+
 @Module({
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditLogInterceptor,
+    },
+  ],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
@@ -31,6 +41,7 @@ import databaseConfig from './config/database.config';
       }),
       inject: [ConfigService],
     }),
+
     AuthModule,
     ProductsModule,
     SalesModule,

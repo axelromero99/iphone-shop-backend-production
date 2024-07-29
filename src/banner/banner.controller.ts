@@ -2,11 +2,13 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { BannersService } from './banner.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuditLog } from 'src/common/services/audit-log.decorator';
 
 @Controller('banners')
 export class BannerController {
     constructor(private readonly bannersService: BannersService) { }
 
+    @AuditLog()
     @Post()
     @UseInterceptors(FileInterceptor('file'))
     create(@Body() createBannerDto: any, @UploadedFile() file: Express.Multer.File) {
