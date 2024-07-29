@@ -1,41 +1,41 @@
-
-
 // src/banner/banner.controller.ts
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { BannersService } from './banner.service';
-// import { CreateExpenseDto } from './dto/create-expense.dto';
-// import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
-@Controller('banner')
-export class BannersController {
-    constructor(private readonly bannerService: BannersService) { }
+@Controller('banners')
+export class BannerController {
+    constructor(private readonly bannersService: BannersService) { }
 
     @Post()
-    create(@Body() createExpenseDto: any) {
-        return this.bannerService.create(createExpenseDto);
+    @UseInterceptors(FileInterceptor('file'))
+    create(@Body() createBannerDto: any, @UploadedFile() file: Express.Multer.File) {
+        return this.bannersService.create(createBannerDto, file);
     }
 
     @Get()
     findAll() {
-        return this.bannerService.findAll();
+        return this.bannersService.findAll();
     }
 
     @Get(':id')
     findOne(@Param('id') id: string) {
-        return this.bannerService.findOne(id);
+        return this.bannersService.findOne(id);
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateExpenseDto: any) {
-        return this.bannerService.update(id, updateExpenseDto);
+    @UseInterceptors(FileInterceptor('file'))
+    update(@Param('id') id: string, @Body() updateBannerDto: any, @UploadedFile() file: Express.Multer.File) {
+        return this.bannersService.update(id, updateBannerDto, file);
     }
 
     @Delete(':id')
-    delete(@Param('id') id: string, @Query('permanent') permanent: boolean) {
-        if (permanent) {
-            return this.bannerService.permanentDelete(id);
-        } else {
-            return this.bannerService.softDelete(id);
-        }
+    remove(@Param('id') id: string) {
+        return this.bannersService.softDelete(id);
+    }
+
+    @Delete(':id/permanent')
+    permanentDelete(@Param('id') id: string) {
+        return this.bannersService.permanentDelete(id);
     }
 }

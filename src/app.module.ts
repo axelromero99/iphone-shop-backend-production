@@ -9,8 +9,12 @@ import { TechnicalServiceModule } from './technical-service/technical-service.mo
 import { InventoryModule } from './inventory/inventory.module';
 import { CashRegisterModule } from './cash-register/cash-register.module';
 import { ExpensesModule } from './expenses/expenses.module';
+import { CloudinaryModule } from './common/cloudinary.module';
+// import the banner
+import { BannersModule } from './banner/banner.module';
 
-// import { ProvidersModule } from './expenses/providers.module';
+// import { ProvidersModule } from './providers/providers.module';
+import cloudinaryConfig from './config/cloudinary.config';
 
 import databaseConfig from './config/database.config';
 
@@ -18,7 +22,7 @@ import databaseConfig from './config/database.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig],
+      load: [databaseConfig, cloudinaryConfig],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -34,6 +38,8 @@ import databaseConfig from './config/database.config';
     InventoryModule,
     CashRegisterModule,
     ExpensesModule,
+    CloudinaryModule,
+    BannersModule
   ],
 })
 export class AppModule { }

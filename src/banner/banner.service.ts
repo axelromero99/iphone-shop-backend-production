@@ -1,60 +1,83 @@
-
 // src/banner/banner.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-// import { CreateExpenseDto } from './dto/create-expense.dto';
-// import { UpdateExpenseDto } from './dto/update-expense.dto';
-import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
-
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { PaginationService } from 'src/common/services/pagination.service';
-import { Expense } from 'src/schemas/expense.schema';
-
-
+import { Banner, BannerDocument } from 'src/schemas/banner.schema';
+import { CloudinaryService } from 'src/common/services/cloudinary.service';
 
 @Injectable()
 export class BannersService {
-    constructor(@InjectModel('Expense') private expenseModel: Model<any>,
+    constructor(
+        @InjectModel('Banner') private bannerModel: Model<BannerDocument>,
         private readonly paginationService: PaginationService,
-
+        private readonly cloudinaryService: CloudinaryService
     ) { }
 
     async findPaginated(paginationDto: PaginationDto) {
-        return this.paginationService.paginate(this.expenseModel, paginationDto);
+        return this.paginationService.paginate(this.bannerModel, paginationDto);
     }
 
-    async create(createExpenseDto: any) {
-        const createdExpense = new this.expenseModel(createExpenseDto);
-        return createdExpense.save();
+    async create(createBannerDto: any, file: Express.Multer.File) {
+        const uploadResult: any = await this.cloudinaryService.uploadImage(file, 'banners');
+
+        console.log("uploadResult", uploadResult);
+        const createdBanner = new this.bannerModel({
+            ...createBannerDto,
+            // imageUrl: uploadResult.secure_url,
+            imageUrl: uploadResult,
+            cloudinaryPublicId: uploadResult.public_id
+        });
+        return createdBanner.save();
     }
 
     async findAll() {
-        return this.expenseModel.find().exec();
+        return this.bannerModel.find({ isDeleted: false }).exec();
     }
 
     async findOne(id: string) {
-        return this.expenseModel.findById(id).exec();
+        return this.bannerModel.findOne({ _id: id, isDeleted: false }).exec();
     }
 
-    async update(id: string, updateExpenseDto: any) {
-        return this.expenseModel.findByIdAndUpdate(id, updateExpenseDto, { new: true }).exec();
-    }
-
-    async softDelete(id: string): Promise<Expense> {
-        const expense = await this.expenseModel.findById(id);
-        if (!expense) {
-            throw new NotFoundException(`InventoryItem with ID "${id}" not found`);
+    async update(id: string, updateBannerDto: any, file?: Express.Multer.File) {
+        const banner = await this.bannerModel.findById(id);
+        if (!banner) {
+            throw new NotFoundException(`Banner with ID "${id}" not found`);
         }
-        expense.isDeleted = true;
-        return expense.save();
-    }
 
-    async permanentDelete(id: string): Promise<Expense> {
-        const expense = await this.expenseModel.findByIdAndDelete(id).exec();
-        if (!expense) {
-            throw new NotFoundException(`Product with ID "${id}" not found`);
+        if (file) {
+            // Delete old image from Cloudinary
+            await this.cloudinaryService.deleteImage(banner.cloudinaryPublicId);
+
+            // Upload new image
+            const uploadResult: any = await this.cloudinaryService.uploadImage(file, 'banners');
+            updateBannerDto.imageUrl = uploadResult.secure_url;
+            updateBannerDto.cloudinaryPublicId = uploadResult.public_id;
         }
-        return expense;
+
+        return this.bannerModel.findByIdAndUpdate(id, updateBannerDto, { new: true }).exec();
     }
 
+    async softDelete(id: string): Promise<Banner> {
+        const banner = await this.bannerModel.findById(id);
+        if (!banner) {
+            throw new NotFoundException(`Banner with ID "${id}" not found`);
+        }
+        banner.isDeleted = true;
+        return banner.save();
+    }
+
+    async permanentDelete(id: string): Promise<Banner> {
+        const banner = await this.bannerModel.findById(id);
+        if (!banner) {
+            throw new NotFoundException(`Banner with ID "${id}" not found`);
+        }
+
+        // Delete image from Cloudinary
+        await this.cloudinaryService.deleteImage(banner.cloudinaryPublicId);
+
+        // Delete banner from database
+        return this.bannerModel.findByIdAndDelete(id).exec();
+    }
 }
