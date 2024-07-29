@@ -12,7 +12,7 @@ export class AuditLogService {
         url: string;
         method: string;
         body: any;
-        user: string;
+        userId: string;
         response: any;
     }) {
         const auditLog = new this.auditLogModel(logData);

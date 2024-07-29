@@ -16,7 +16,7 @@ export class AuditLog {
   body: Record<string, any>;
 
   @Prop()
-  user: string;
+  userId: string;
 
   @Prop({ type: Object })
   response: Record<string, any>;
