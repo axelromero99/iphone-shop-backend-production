@@ -2,7 +2,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { BannersService } from './banner.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { AuditLog } from 'src/common/services/audit-log.decorator';
+import { AuditLog } from 'src/audit/audit-log.decorator';
 
 @Controller('banners')
 export class BannerController {

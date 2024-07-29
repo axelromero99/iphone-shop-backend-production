@@ -1,9 +1,9 @@
 // src/audit/audit.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuditLog, AuditLogSchema } from './schemas/audit-log.schema';
-import { AuditLogService } from './services/audit-log.service';
-import { AuditLogInterceptor } from './interceptors/audit-log.interceptor';
+import { AuditLog, AuditLogSchema } from 'src/schemas/audit-log.schema';
+import { AuditLogService } from './audit-log.service';
+import { AuditLogInterceptor } from './audit-log.interceptor';
 
 @Module({
     imports: [

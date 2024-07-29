@@ -22,7 +22,6 @@ export class BannersService {
     async create(createBannerDto: any, file: Express.Multer.File) {
         const uploadResult: any = await this.cloudinaryService.uploadImage(file, 'banners');
 
-        console.log("uploadResult", uploadResult);
         const createdBanner = new this.bannerModel({
             ...createBannerDto,
             // imageUrl: uploadResult.secure_url,

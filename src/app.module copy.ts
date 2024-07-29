@@ -10,14 +10,17 @@ import { InventoryModule } from './inventory/inventory.module';
 import { CashRegisterModule } from './cash-register/cash-register.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { CloudinaryModule } from './common/cloudinary.module';
+// import the banner
 import { BannersModule } from './banner/banner.module';
-import { AuditModule } from './audit/audit.module'; // Importa el AuditModule
 
+// import { ProvidersModule } from './providers/providers.module';
 import cloudinaryConfig from './config/cloudinary.config';
+
 import databaseConfig from './config/database.config';
 
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { AuditLogInterceptor } from './audit/audit-log.interceptor';
+import { AuditLogInterceptor } from 'src/audit/audit-log.interceptor';
+
 
 @Module({
   providers: [
@@ -38,6 +41,7 @@ import { AuditLogInterceptor } from './audit/audit-log.interceptor';
       }),
       inject: [ConfigService],
     }),
+
     AuthModule,
     ProductsModule,
     SalesModule,
@@ -46,8 +50,8 @@ import { AuditLogInterceptor } from './audit/audit-log.interceptor';
     CashRegisterModule,
     ExpensesModule,
     CloudinaryModule,
-    BannersModule,
-    AuditModule, // Añade el AuditModule aquí
+    BannersModule
   ],
 })
 export class AppModule { }
+
