@@ -3,11 +3,13 @@ import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } fro
 import { TechnicalServiceService } from './technical-service.service';
 // import { CreateTechnicalServiceDto } from './dto/create-technical-service.dto';
 // import { UpdateTechnicalServiceDto } from './dto/update-technical-service.dto';
+import { AuditLog } from 'src/audit/audit-log.decorator';
 
 @Controller('technical-service')
 export class TechnicalServiceController {
     constructor(private readonly technicalServiceService: TechnicalServiceService) { }
 
+    @AuditLog()
     @Post()
     async create(@Body() createTechnicalServiceDto: any) {
         // createTechnicalServiceDto.trackingCode = await this.technicalServiceService.generateTrackingCode();
@@ -24,11 +26,13 @@ export class TechnicalServiceController {
         return this.technicalServiceService.findOne(id);
     }
 
+    @AuditLog()
     @Put(':id')
     update(@Param('id') id: string, @Body() updateTechnicalServiceDto: any) {
         return this.technicalServiceService.update(id, updateTechnicalServiceDto);
     }
 
+    @AuditLog()
     @Delete(':id')
     delete(@Param('id') id: string, @Query('permanent') permanent: boolean) {
         if (permanent) {

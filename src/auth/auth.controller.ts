@@ -6,23 +6,22 @@ import { AuthService } from './auth.service';
 import { RawHeaders, GetUser, Auth } from './decorators';
 import { RoleProtected } from './decorators/role-protected.decorator';
 
-// import { CreateUserDto, LoginUserDto } from './dto';
 import { UserRoleGuard } from './guards/user-role.guard';
 import { ValidRoles } from './interfaces';
-// import { Historial } from 'src/historial-ondev-future/historial.decorator';
+import { AuditLog } from 'src/audit/audit-log.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
-
+  @AuditLog()
   @Post('register')
-  // createUser(@Body() createUserDto: CreateUserDto, @Historial() historialData: any) {
   createUser(@Body() createUserDto: any) {
 
     return this.authService.create(createUserDto);
   }
 
+  @AuditLog()
   @Post('login')
   loginUser(@Body() loginUserDto: any) {
     return this.authService.login(loginUserDto);
@@ -37,16 +36,19 @@ export class AuthController {
   }
 
   // Password reset endpoints
+  @AuditLog()
   @Post('password-reset')
   requestPasswordReset(@Body('email') email: string) {
     return this.authService.sendPasswordResetCode(email, 'email');
   }
 
+  @AuditLog()
   @Post('password-reset/verify')
   verifyResetCode(@Body('email') email: string, @Body('code') code: string) {
     return this.authService.verifyPasswordResetCode(email, code);
   }
 
+  @AuditLog()
   @Post('password-reset/confirm')
   resetPassword(@Body('token') token: string, @Body('newPassword') newPassword: string) {
     return this.authService.resetPassword(token, newPassword);

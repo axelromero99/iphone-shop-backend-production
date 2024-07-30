@@ -25,17 +25,20 @@ export class BannerController {
         return this.bannersService.findOne(id);
     }
 
+    @AuditLog()
     @Patch(':id')
     @UseInterceptors(FileInterceptor('file'))
     update(@Param('id') id: string, @Body() updateBannerDto: any, @UploadedFile() file: Express.Multer.File) {
         return this.bannersService.update(id, updateBannerDto, file);
     }
 
+    @AuditLog()
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.bannersService.softDelete(id);
     }
 
+    @AuditLog()
     @Delete(':id/permanent')
     permanentDelete(@Param('id') id: string) {
         return this.bannersService.permanentDelete(id);

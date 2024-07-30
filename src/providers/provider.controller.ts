@@ -1,6 +1,8 @@
 
 import { Controller } from '@nestjs/common';
 import { ProviderService } from './provider.service';
+import { AuditLog } from 'src/audit/audit-log.decorator';
+
 
 @Controller('provider')
 export class ProviderController {

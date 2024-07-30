@@ -4,11 +4,13 @@ import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } fro
 import { SalesService } from './sales.service';
 // import { CreateSaleDto } from './dto/create-sale.dto';
 // import { UpdateSaleDto } from './dto/update-sale.dto';
+import { AuditLog } from 'src/audit/audit-log.decorator';
 
 @Controller('sales')
 export class SalesController {
     constructor(private readonly salesService: SalesService) { }
 
+    @AuditLog()
     @Post()
     async create(@Body() createSaleDto: any) {
         createSaleDto.trackingCode = await this.salesService.generateTrackingCode();
@@ -25,11 +27,13 @@ export class SalesController {
         return this.salesService.findOne(id);
     }
 
+    @AuditLog()
     @Put(':id')
     update(@Param('id') id: string, @Body() updateSaleDto: any) {
         return this.salesService.update(id, updateSaleDto);
     }
 
+    @AuditLog()
     @Delete(':id')
     delete(@Param('id') id: string, @Query('permanent') permanent: boolean) {
         if (permanent) {

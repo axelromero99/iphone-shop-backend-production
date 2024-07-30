@@ -39,3 +39,8 @@ export class AuditLogService {
         return logs;
     }
 }
+
+
+// revisar la solucion de JWT
+// falta guardar el body en el log
+// falta quizas revisar si el body se guarda si es form data?
