@@ -6,7 +6,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuditLog, AuditLogSchema } from 'src/schemas/audit-log.schema';
 import { AuditLogService } from './audit-log.service';
 import { AuditLogInterceptor } from './audit-log.interceptor';
-import { AuthModule } from '../auth/auth.module'; // Importa AuthModule en lugar de UserModule
+import { AuditLogController } from './audit-log.controller';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
     imports: [
@@ -18,9 +19,10 @@ import { AuthModule } from '../auth/auth.module'; // Importa AuthModule en lugar
             }),
             inject: [ConfigService],
         }),
-        AuthModule, // Importa AuthModule aquí
+        AuthModule,
     ],
     providers: [AuditLogService, AuditLogInterceptor],
+    controllers: [AuditLogController],
     exports: [AuditLogService, AuditLogInterceptor],
 })
 export class AuditModule { }
