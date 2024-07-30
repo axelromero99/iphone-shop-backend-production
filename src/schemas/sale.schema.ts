@@ -1,6 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { Product } from './product.schema';
+// import { customAlphabet } from 'nanoid';
+import { generateTrackingCode } from '../utils/tracking-code.generator';
+
 
 export type SaleDocument = Sale & Document;
 
@@ -51,7 +54,11 @@ export class Sale {
   @Prop({ required: true })
   entryDate: Date;
 
-  @Prop({ required: true, unique: true })
+  @Prop({
+    required: false,
+    unique: true,
+    default: generateTrackingCode
+  })
   trackingCode: string;
 
   @Prop()
@@ -82,3 +89,12 @@ export class Sale {
 }
 
 export const SaleSchema = SchemaFactory.createForClass(Sale);
+
+
+// Añade un pre-save hook para asegurarte de que trackingCode siempre tenga un valor
+SaleSchema.pre('save', function (next) {
+  if (!this.trackingCode) {
+    this.trackingCode = generateTrackingCode();
+  }
+  next();
+});

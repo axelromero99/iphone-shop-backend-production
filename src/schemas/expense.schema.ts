@@ -22,15 +22,6 @@ export class Expense extends Document {
   @Prop()
   receipt: string;
 
-  @Prop()
-  notes: string;
-
-  @Prop({ required: true })
-  isRecurring: boolean;
-
-  @Prop()
-  recurrenceInterval: string;
-
   @Prop({ default: false })
   isDeleted: boolean;
 }

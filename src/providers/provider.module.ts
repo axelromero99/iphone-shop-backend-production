@@ -3,8 +3,8 @@
 // src/provider/provider.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ProviderService } from './provider.service';
-import { ProviderController } from './provider.controller';
+import { ProvidersService } from './provider.service';
+import { ProvidersController } from './provider.controller';
 import { ProviderSchema } from '../schemas/provider.schema';
 
 @Module({
@@ -13,7 +13,7 @@ import { ProviderSchema } from '../schemas/provider.schema';
             { name: 'Provider', schema: ProviderSchema },
         ]),
     ],
-    providers: [ProviderService],
-    controllers: [ProviderController],
+    providers: [ProvidersService],
+    controllers: [ProvidersController],
 })
 export class ProviderModule { }

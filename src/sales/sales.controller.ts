@@ -10,10 +10,9 @@ import { AuditLog } from 'src/audit/audit-log.decorator';
 export class SalesController {
     constructor(private readonly salesService: SalesService) { }
 
-    @AuditLog()
+    // @AuditLog()
     @Post()
     async create(@Body() createSaleDto: any) {
-        createSaleDto.trackingCode = await this.salesService.generateTrackingCode();
         return this.salesService.create(createSaleDto);
     }
 

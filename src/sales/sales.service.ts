@@ -9,6 +9,7 @@ import { Sale, SaleDocument } from '../schemas/sale.schema';
 import { ProductsService } from '../products/products.service';
 import { PaginationService } from 'src/common/services/pagination.service';
 import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
+import { generateTrackingCode } from '../utils/tracking-code.generator';
 
 
 @Injectable()
@@ -64,12 +65,5 @@ export class SalesService {
         return sale;
     }
 
-    async generateTrackingCode(): Promise<string> {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        for (let i = 0; i < 8; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return result;
-    }
+
 }

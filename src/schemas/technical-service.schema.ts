@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
-import { customAlphabet } from 'nanoid';
+import { generateTrackingCode } from '../utils/tracking-code.generator';
+
 // import { Document } from 'mongoose';
 export type TechnicalServiceDocument = TechnicalService & Document;
 
@@ -93,7 +94,11 @@ export class TechnicalService extends Document {
 export const DiagnosisSchema = SchemaFactory.createForClass(Diagnosis);
 export const TechnicalServiceSchema = SchemaFactory.createForClass(TechnicalService);
 
-// // Add the custom default function for trackingCode
-// TechnicalServiceSchema.path('service.trackingCode').default(function () {
-//   return customAlphabetWithoutDashUnderscore();
-// });
+
+// Agregamos un pre-save hook para generar el trackingCode si no existe
+TechnicalServiceSchema.pre('save', function (next) {
+  if (!this.service.trackingCode) {
+    this.service.trackingCode = generateTrackingCode();
+  }
+  next();
+});
