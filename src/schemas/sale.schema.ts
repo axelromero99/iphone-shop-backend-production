@@ -9,13 +9,6 @@ export type SaleDocument = Sale & Document;
 
 @Schema({ timestamps: true })
 export class Sale {
-  @Prop({ type: Object, required: true })
-  device: {
-    model: string;
-    color: string;
-    capacity: string;
-    IMEI: string;
-  };
 
   @Prop({ type: Object, required: true })
   customer: {
