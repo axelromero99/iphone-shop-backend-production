@@ -1,6 +1,6 @@
 
 // src/sales/sales.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Sale, SaleDocument } from '../schemas/sale.schema';
@@ -22,9 +22,19 @@ export class SalesService {
     ) { }
 
     async create(createSaleDto: any): Promise<Sale> {
+        // Check stock for all products before creating the sale
+        for (const item of createSaleDto.products) {
+            const product = await this.productsService.findOne(item.product.toString());
+            if (!product) {
+                throw new BadRequestException(`Product with ID "${item.product}" not found`);
+            }
+            if (product.stock < item.quantity) {
+                throw new BadRequestException(`Insufficient stock for product "${product.name}". Available: ${product.stock}, Requested: ${item.quantity}`);
+            }
+        }
+
         const createdSale = new this.saleModel(createSaleDto);
 
-        // Update product stock
         // Update product stock
         for (const item of createSaleDto.products) {
             await this.productsService.updateStock(item.product.toString(), -item.quantity);
