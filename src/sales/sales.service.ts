@@ -25,8 +25,9 @@ export class SalesService {
         const createdSale = new this.saleModel(createSaleDto);
 
         // Update product stock
-        for (const product of createSaleDto.products) {
-            await this.productsService.updateStock(product.toString(), -1);
+        // Update product stock
+        for (const item of createSaleDto.products) {
+            await this.productsService.updateStock(item.product.toString(), -item.quantity);
         }
 
         return createdSale.save();

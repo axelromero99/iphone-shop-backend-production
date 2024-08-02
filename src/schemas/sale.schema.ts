@@ -64,9 +64,18 @@ export class Sale {
     equipment: string;
   };
 
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Product' }] })
-  products: Product[];
-
+  @Prop([{
+    product: { type: MongooseSchema.Types.ObjectId, ref: 'Product', required: true },
+    quantity: { type: Number, required: true },
+    // priceAtSaleUSD: { type: Number, required: true },
+    // priceAtSaleARS: { type: Number, required: true }
+  }])
+  products: Array<{
+    product: Product;
+    quantity: number;
+    // priceAtSaleUSD: number;
+    // priceAtSaleARS: number;
+  }>;
   @Prop({ type: Object })
   phoneReceived: {
     model: string;
