@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
+
 import { SalesModule } from './sales/sales.module';
 import { TechnicalServiceModule } from './technical-service/technical-service.module';
 import { InventoryModule } from './inventory/inventory.module';

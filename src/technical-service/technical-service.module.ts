@@ -7,12 +7,14 @@ import { TechnicalService, TechnicalServiceSchema } from '../schemas/technical-s
 import { Diagnosis, DiagnosisSchema } from '../schemas/technical-service.schema';
 import { InventoryModule } from '../inventory/inventory.module';
 import { CommonModule } from 'src/common/common.module';
+import { ProductsModule } from '../products/products.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: TechnicalService.name, schema: TechnicalServiceSchema }, { name: Diagnosis.name, schema: DiagnosisSchema },
         ]),
         InventoryModule,
+        ProductsModule,
         CommonModule,
 
     ],

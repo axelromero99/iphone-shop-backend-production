@@ -1,44 +1,79 @@
-
 // src/products/products.controller.ts
 import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
-// import { CreateProductDto } from './dto/create-product.dto';
-// import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductTechnicalServiceService } from './product-technical-service.service';
 import { AuditLog } from 'src/audit/audit-log.decorator';
 
 @Controller('products')
 export class ProductsController {
-    constructor(private readonly productsService: ProductsService) { }
+    constructor(
+        private readonly productsService: ProductsService,
+        private readonly productTechnicalServiceService: ProductTechnicalServiceService
+    ) { }
 
+    // Regular Product CRUD operations
     @AuditLog()
     @Post()
-    create(@Body() createProductDto: any) {
+    createProduct(@Body() createProductDto: any) {
         return this.productsService.create(createProductDto);
     }
 
     @Get()
-    findAll() {
+    findAllProducts() {
         return this.productsService.findAll();
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOneProduct(@Param('id') id: string) {
         return this.productsService.findOne(id);
     }
 
     @AuditLog()
     @Put(':id')
-    update(@Param('id') id: string, @Body() updateProductDto: any) {
+    updateProduct(@Param('id') id: string, @Body() updateProductDto: any) {
         return this.productsService.update(id, updateProductDto);
     }
 
     @AuditLog()
     @Delete(':id')
-    delete(@Param('id') id: string, @Query('permanent') permanent: boolean) {
+    deleteProduct(@Param('id') id: string, @Query('permanent') permanent: boolean) {
         if (permanent) {
             return this.productsService.permanentDelete(id);
         } else {
             return this.productsService.softDelete(id);
+        }
+    }
+
+    // Technical Service Product CRUD operations
+    @AuditLog()
+    @Post('technical-service')
+    createTechnicalServiceProduct(@Body() createProductTechnicalServiceDto: any) {
+        return this.productTechnicalServiceService.create(createProductTechnicalServiceDto);
+    }
+
+    @Get('technical-service')
+    findAllTechnicalServiceProducts() {
+        return this.productTechnicalServiceService.findAll();
+    }
+
+    @Get('technical-service/:id')
+    findOneTechnicalServiceProduct(@Param('id') id: string) {
+        return this.productTechnicalServiceService.findOne(id);
+    }
+
+    @AuditLog()
+    @Put('technical-service/:id')
+    updateTechnicalServiceProduct(@Param('id') id: string, @Body() updateProductTechnicalServiceDto: any) {
+        return this.productTechnicalServiceService.update(id, updateProductTechnicalServiceDto);
+    }
+
+    @AuditLog()
+    @Delete('technical-service/:id')
+    deleteTechnicalServiceProduct(@Param('id') id: string, @Query('permanent') permanent: boolean) {
+        if (permanent) {
+            return this.productTechnicalServiceService.permanentDelete(id);
+        } else {
+            return this.productTechnicalServiceService.softDelete(id);
         }
     }
 }

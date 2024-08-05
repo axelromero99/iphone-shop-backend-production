@@ -1,6 +1,6 @@
 
 // src/sales/sales.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Provider, ProviderDocument } from '../schemas/provider.schema';
@@ -14,41 +14,48 @@ import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
 @Injectable()
 export class ProvidersService {
     constructor(
-        @InjectModel(Provider.name) private saleModel: Model<ProviderDocument>,
+        @InjectModel(Provider.name) private providerModel: Model<ProviderDocument>,
         private productsService: ProductsService,
         private readonly paginationService: PaginationService,
 
     ) { }
 
-    async create(createProviderDto: any): Promise<Provider> {
-        const createdProvider = new this.saleModel(createProviderDto);
+    async create(createPurchaseDto: any): Promise<Provider> {
+        const createdPurchase = new this.providerModel(createPurchaseDto);
 
         // Update product stock
-        for (const product of createProviderDto.products) {
-            await this.productsService.updateStock(product.toString(), -1);
+        for (const item of createPurchaseDto.products) {
+            const product = await this.productsService.findOne(item.product.toString());
+            if (!product) {
+                throw new BadRequestException(`Product with ID "${item.product}" not found`);
+            }
+            await this.productsService.updateStock(item.product.toString(), item.quantity);
         }
 
-        return createdProvider.save();
+        // Here you would add logic to reduce cash or update financial records
+        // For example: await this.financialService.reduceCash(createPurchaseDto.totalPriceARS);
+
+        return createdPurchase.save();
     }
 
     async findAll(): Promise<Provider[]> {
-        return this.saleModel.find().populate('products').exec();
+        return this.providerModel.find().populate('products').exec();
     }
 
     async findPaginated(paginationDto: PaginationDto) {
-        return this.paginationService.paginate(this.saleModel, paginationDto);
+        return this.paginationService.paginate(this.providerModel, paginationDto);
     }
 
     async findOne(id: string): Promise<Provider> {
-        return this.saleModel.findById(id).populate('products').exec();
+        return this.providerModel.findById(id).populate('products').exec();
     }
 
     async update(id: string, updateProviderDto: any): Promise<Provider> {
-        return this.saleModel.findByIdAndUpdate(id, updateProviderDto, { new: true }).exec();
+        return this.providerModel.findByIdAndUpdate(id, updateProviderDto, { new: true }).exec();
     }
 
     async softDelete(id: string): Promise<Provider> {
-        const sale = await this.saleModel.findById(id);
+        const sale = await this.providerModel.findById(id);
         if (!sale) {
             throw new NotFoundException(`Provider with ID "${id}" not found`);
         }
@@ -57,7 +64,7 @@ export class ProvidersService {
     }
 
     async permanentDelete(id: string): Promise<Provider> {
-        const sale = await this.saleModel.findByIdAndDelete(id).exec();
+        const sale = await this.providerModel.findByIdAndDelete(id).exec();
         if (!sale) {
             throw new NotFoundException(`Provider with ID "${id}" not found`);
         }

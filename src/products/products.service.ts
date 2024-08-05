@@ -1,25 +1,17 @@
-
 // src/products/products.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product, ProductDocument } from '../schemas/product.schema';
-// import { CreateProductDto } from './dto/create-product.dto';
-// import { UpdateProductDto } from './dto/update-product.dto';
-import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
-
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { PaginationService } from 'src/common/services/pagination.service';
-
-
-
 
 @Injectable()
 export class ProductsService {
-    constructor(@InjectModel(Product.name) private productModel: Model<ProductDocument>,
+    constructor(
+        @InjectModel(Product.name) private productModel: Model<ProductDocument>,
         private readonly paginationService: PaginationService,
-
     ) { }
-
 
     async findPaginated(paginationDto: PaginationDto) {
         return this.paginationService.paginate(this.productModel, paginationDto);
@@ -43,20 +35,20 @@ export class ProductsService {
     }
 
     async softDelete(id: string): Promise<Product> {
-        const sale = await this.productModel.findById(id);
-        if (!sale) {
+        const product = await this.productModel.findById(id);
+        if (!product) {
             throw new NotFoundException(`Product with ID "${id}" not found`);
         }
-        sale.isDeleted = true;
-        return sale.save();
+        product.isDeleted = true;
+        return product.save();
     }
 
     async permanentDelete(id: string): Promise<Product> {
-        const sale = await this.productModel.findByIdAndDelete(id).exec();
-        if (!sale) {
+        const product = await this.productModel.findByIdAndDelete(id).exec();
+        if (!product) {
             throw new NotFoundException(`Product with ID "${id}" not found`);
         }
-        return sale;
+        return product;
     }
 
     async updateStock(id: string, quantity: number): Promise<Product> {
