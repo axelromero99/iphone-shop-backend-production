@@ -20,6 +20,8 @@ export class TechnicalServiceService {
 
     async create(createTechnicalServiceDto: any): Promise<TechnicalService> {
         let totalCost = 0;
+
+        console.log("createTechnicalServiceDto", createTechnicalServiceDto)
         for (const item of createTechnicalServiceDto.usedProducts) {
             const product = await this.productTechnicalServiceService.findOne(item.product.toString());
             if (!product) {

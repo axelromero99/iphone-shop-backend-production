@@ -7,8 +7,6 @@ export type TechnicalServiceDocument = TechnicalService & Document;
 
 export type SortOrder = -1 | 1;
 
-// Custom alphabet excluding "-" and "_"
-// const customAlphabetWithoutDashUnderscore = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 11);
 
 @Schema({ timestamps: true })
 export class Diagnosis {
@@ -38,6 +36,15 @@ export class Diagnosis {
   @Prop() silentSwitch?: boolean;
   @Prop() touch?: boolean;
   @Prop({ required: true }) diagnosisDate: Date;
+}
+
+@Schema({ timestamps: true })
+export class UsedProduct {
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'ProductTechnicalService', required: true })
+  product: MongooseSchema.Types.ObjectId;
+
+  @Prop({ required: true })
+  quantity: number;
 }
 
 @Schema({ timestamps: true })
@@ -87,11 +94,15 @@ export class TechnicalService extends Document {
   @Prop({ type: Diagnosis })
   secondDiagnosis?: Diagnosis;
 
+  @Prop({ type: [UsedProduct] })
+  usedProducts?: UsedProduct[];
+
   @Prop({ default: false })
   isDeleted: boolean;
 }
 
 export const DiagnosisSchema = SchemaFactory.createForClass(Diagnosis);
+export const UsedProductSchema = SchemaFactory.createForClass(UsedProduct);
 export const TechnicalServiceSchema = SchemaFactory.createForClass(TechnicalService);
 
 
