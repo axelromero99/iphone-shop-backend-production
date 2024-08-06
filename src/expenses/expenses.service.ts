@@ -57,4 +57,28 @@ export class ExpensesService {
         return expense;
     }
 
+    async getMonthlyExpenses(year: number, month: number): Promise<any> {
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0);
+
+        const expenses = await this.expenseModel.find({
+            date: { $gte: startDate, $lte: endDate },
+            isDeleted: false
+        }).exec();
+
+        const totalAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        const categorySummary = expenses.reduce((acc, expense) => {
+            acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+            return acc;
+        }, {});
+
+        return {
+            year,
+            month,
+            totalAmount,
+            categorySummary,
+            expenses
+        };
+    }
+
 }

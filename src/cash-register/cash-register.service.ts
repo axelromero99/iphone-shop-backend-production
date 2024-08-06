@@ -54,4 +54,74 @@ export class CashRegisterService {
         }
         return cashRegister;
     }
+
+
+    async openShift(openShiftDto: any): Promise<CashRegister> {
+        const newShift = new this.cashRegisterModel(openShiftDto);
+        return newShift.save();
+    }
+
+    async closeShift(id: string, closeShiftDto: any): Promise<CashRegister> {
+        const shift = await this.cashRegisterModel.findById(id);
+        if (!shift || shift.isClosed) {
+            throw new NotFoundException(`Shift with ID "${id}" not found or already closed`);
+        }
+        Object.assign(shift, closeShiftDto);
+        shift.isClosed = true;
+        shift.closingTime = new Date();
+        return shift.save();
+    }
+
+    async getDailyReport(date: Date): Promise<any> {
+        const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+
+        const shifts = await this.cashRegisterModel.find({
+            openingTime: { $gte: startOfDay, $lte: endOfDay },
+            isClosed: true
+        }).exec();
+
+        // Calcular totales y generar informe
+        // ...
+
+        return {
+            date: date,
+            totalSales: /* cálculo */,
+            totalCash: /* cálculo */,
+            totalCredit: /* cálculo */,
+            totalDebit: /* cálculo */,
+            totalOther: /* cálculo */,
+            netProfit: /* cálculo */,
+            shifts: shifts
+        };
+    }
+
+    async getShiftReport(id: string): Promise<any> {
+        const shift = await this.cashRegisterModel.findById(id);
+        if (!shift) {
+            throw new NotFoundException(`Shift with ID "${id}" not found`);
+        }
+
+        // Generar informe detallado del turno
+        // ...
+
+        return {
+            shiftId: shift._id,
+            cashier: shift.cashier,
+            shift: shift.shift,
+            openingTime: shift.openingTime,
+            closingTime: shift.closingTime,
+            openingBalance: shift.openingBalance,
+            closingBalance: shift.closingBalance,
+            salesBreakdown: {
+                cash: shift.cashInDrawer - shift.openingBalance,
+                creditCard: shift.creditCardTotal,
+                debitCard: shift.debitCardTotal,
+                other: shift.otherPaymentTotal
+            },
+            totalSales: shift.closingBalance - shift.openingBalance,
+            discrepancy: shift.discrepancy,
+            notes: shift.notes
+        };
+    }
 }

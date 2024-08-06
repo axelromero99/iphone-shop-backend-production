@@ -2,13 +2,12 @@
 // src/cash-register/schemas/cash-register.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
 @Schema({ timestamps: true })
-export class CashRegister extends Document {
+export class CashRegister {
   @Prop({ required: true })
   openingBalance: number;
 
-  @Prop({ required: true })
+  @Prop()
   closingBalance: number;
 
   @Prop()
@@ -35,8 +34,14 @@ export class CashRegister extends Document {
   @Prop({ required: true })
   cashier: string;
 
+  @Prop({ enum: ['morning', 'afternoon'], required: true })
+  shift: string;
+
   @Prop()
   notes: string;
+
+  @Prop({ default: false })
+  isClosed: boolean;
 
   @Prop({ default: false })
   isDeleted: boolean;

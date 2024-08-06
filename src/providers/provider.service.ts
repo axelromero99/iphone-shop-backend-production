@@ -20,22 +20,31 @@ export class ProvidersService {
 
     ) { }
 
-    async create(createPurchaseDto: any): Promise<Provider> {
-        const createdPurchase = new this.providerModel(createPurchaseDto);
 
-        // Update product stock
-        for (const item of createPurchaseDto.products) {
-            const product = await this.productsService.findOne(item.product.toString());
-            if (!product) {
-                throw new BadRequestException(`Product with ID "${item.product}" not found`);
+    async create(createProviderDto: any): Promise<Provider> {
+        const session = await this.providerModel.db.startSession();
+        session.startTransaction();
+
+        try {
+            const newProvider = new this.providerModel(createProviderDto);
+            await newProvider.save({ session });
+
+            // Actualizar stock de productos técnicos
+            for (const item of createProviderDto.products) {
+                await this.productTechnicalServiceService.updateStock(item.product.toString(), item.quantity, session);
             }
-            await this.productsService.updateStock(item.product.toString(), item.quantity);
+
+            // Registrar el gasto en la caja
+            await this.cashRegisterService.registerExpense(createProviderDto.totalPrice, 'Provider Purchase', session);
+
+            await session.commitTransaction();
+            return newProvider;
+        } catch (error) {
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            session.endSession();
         }
-
-        // Here you would add logic to reduce cash or update financial records
-        // For example: await this.financialService.reduceCash(createPurchaseDto.totalPriceARS);
-
-        return createdPurchase.save();
     }
 
     async findAll(): Promise<Provider[]> {
@@ -51,7 +60,37 @@ export class ProvidersService {
     }
 
     async update(id: string, updateProviderDto: any): Promise<Provider> {
-        return this.providerModel.findByIdAndUpdate(id, updateProviderDto, { new: true }).exec();
+        const session = await this.providerModel.db.startSession();
+        session.startTransaction();
+
+        try {
+            const oldProvider = await this.providerModel.findById(id).session(session);
+            if (!oldProvider) {
+                throw new NotFoundException(`Provider with ID "${id}" not found`);
+            }
+
+            // Revertir cambios en el stock y en la caja
+            for (const item of oldProvider.products) {
+                await this.productTechnicalServiceService.updateStock(item.product.toString(), -item.quantity, session);
+            }
+            await this.cashRegisterService.registerIncome(oldProvider.totalPrice, 'Provider Purchase Reversal', session);
+
+            // Aplicar nuevos cambios
+            const updatedProvider = await this.providerModel.findByIdAndUpdate(id, updateProviderDto, { new: true, session }).exec();
+
+            for (const item of updateProviderDto.products) {
+                await this.productTechnicalServiceService.updateStock(item.product.toString(), item.quantity, session);
+            }
+            await this.cashRegisterService.registerExpense(updateProviderDto.totalPrice, 'Updated Provider Purchase', session);
+
+            await session.commitTransaction();
+            return updatedProvider;
+        } catch (error) {
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            session.endSession();
+        }
     }
 
     async softDelete(id: string): Promise<Provider> {
@@ -62,6 +101,37 @@ export class ProvidersService {
         sale.isDeleted = true;
         return sale.save();
     }
+
+
+    async getProviderPurchaseHistory(id: string, startDate: Date, endDate: Date): Promise<any[]> {
+        return this.providerModel.find({
+            _id: id,
+            purchaseDate: { $gte: startDate, $lte: endDate },
+            isDeleted: false
+        }).sort({ purchaseDate: -1 }).exec();
+    }
+
+    async getTotalPurchasesByProvider(startDate: Date, endDate: Date): Promise<any[]> {
+        return this.providerModel.aggregate([
+            {
+                $match: {
+                    purchaseDate: { $gte: startDate, $lte: endDate },
+                    isDeleted: false
+                }
+            },
+            {
+                $group: {
+                    _id: '$name',
+                    totalPurchases: { $sum: '$totalPrice' },
+                    purchaseCount: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { totalPurchases: -1 }
+            }
+        ]).exec();
+    }
+
 
     async permanentDelete(id: string): Promise<Provider> {
         const sale = await this.providerModel.findByIdAndDelete(id).exec();

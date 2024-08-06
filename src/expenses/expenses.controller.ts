@@ -44,4 +44,10 @@ export class ExpensesController {
             return this.expensesService.softDelete(id);
         }
     }
+
+
+    @Get('monthly-report')
+    getMonthlyExpenses(@Query('year') year: number, @Query('month') month: number) {
+        return this.expensesService.getMonthlyExpenses(year, month);
+    }
 }

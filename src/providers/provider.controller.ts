@@ -42,4 +42,21 @@ export class ProvidersController {
             return this.providersService.softDelete(id);
         }
     }
+
+    @Get(':id/purchase-history')
+    getPurchaseHistory(
+        @Param('id') id: string,
+        @Query('startDate') startDate: Date,
+        @Query('endDate') endDate: Date
+    ) {
+        return this.providerService.getProviderPurchaseHistory(id, startDate, endDate);
+    }
+
+    @Get('purchase-summary')
+    getPurchaseSummary(
+        @Query('startDate') startDate: Date,
+        @Query('endDate') endDate: Date
+    ) {
+        return this.providerService.getTotalPurchasesByProvider(startDate, endDate);
+    }
 }

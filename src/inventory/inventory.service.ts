@@ -67,4 +67,27 @@ export class InventoryService {
     }
 
 
+
+    async findLowStock(): Promise<InventoryItem[]> {
+        return this.inventoryItemModel.find({
+            quantity: { $lte: '$minimumStockLevel' },
+            isDeleted: false
+        }).exec();
+    }
+
+    // async updateStock(id: string, quantity: number): Promise<InventoryItem> {
+    //     const item = await this.inventoryItemModel.findById(id);
+    //     if (!item) {
+    //         throw new NotFoundException(`Inventory item with ID "${id}" not found`);
+    //     }
+    //     item.quantity += quantity;
+    //     item.lastRestockDate = new Date();
+    //     return item.save();
+    // }
+
+    // async getStockMovements(id: string, startDate: Date, endDate: Date): Promise<any[]> {
+    //     // Implementar lógica para obtener movimientos de stock
+    //     // Esto requerirá un nuevo schema para StockMovement
+    // }
+
 }

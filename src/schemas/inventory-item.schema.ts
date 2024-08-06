@@ -3,7 +3,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 export type InventoryItemDocument = InventoryItem & Document;
-
 @Schema({ timestamps: true })
 export class InventoryItem {
   @Prop({ required: true })
@@ -32,6 +31,12 @@ export class InventoryItem {
 
   @Prop({ type: Object })
   attributes: Record<string, any>;
+
+  @Prop()
+  lastRestockDate: Date;
+
+  @Prop()
+  minimumStockLevel: number;
 
   @Prop({ default: false })
   isDeleted: boolean;
