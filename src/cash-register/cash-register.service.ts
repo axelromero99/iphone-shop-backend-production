@@ -55,13 +55,12 @@ export class CashRegisterService {
         return cashRegister;
     }
 
-
-    async openShift(openShiftDto: any): Promise<CashRegister> {
+    async openShift(openShiftDto: OpenShiftDto): Promise<CashRegister> {
         const newShift = new this.cashRegisterModel(openShiftDto);
         return newShift.save();
     }
 
-    async closeShift(id: string, closeShiftDto: any): Promise<CashRegister> {
+    async closeShift(id: string, closeShiftDto: CloseShiftDto): Promise<CashRegister> {
         const shift = await this.cashRegisterModel.findById(id);
         if (!shift || shift.isClosed) {
             throw new NotFoundException(`Shift with ID "${id}" not found or already closed`);
@@ -72,38 +71,13 @@ export class CashRegisterService {
         return shift.save();
     }
 
-    async getDailyReport(date: Date): Promise<any> {
-        const startOfDay = new Date(date.setHours(0, 0, 0, 0));
-        const endOfDay = new Date(date.setHours(23, 59, 59, 999));
-
-        const shifts = await this.cashRegisterModel.find({
-            openingTime: { $gte: startOfDay, $lte: endOfDay },
-            isClosed: true
-        }).exec();
-
-        // Calcular totales y generar informe
-        // ...
-
-        return {
-            date: date,
-            totalSales: /* cálculo */,
-            totalCash: /* cálculo */,
-            totalCredit: /* cálculo */,
-            totalDebit: /* cálculo */,
-            totalOther: /* cálculo */,
-            netProfit: /* cálculo */,
-            shifts: shifts
-        };
-    }
-
     async getShiftReport(id: string): Promise<any> {
-        const shift = await this.cashRegisterModel.findById(id);
+        const shift = await this.cashRegisterModel.findById(id).populate('transactions');
         if (!shift) {
             throw new NotFoundException(`Shift with ID "${id}" not found`);
         }
 
-        // Generar informe detallado del turno
-        // ...
+        const transactions = await this.transactionModel.find({ _id: { $in: shift.transactions } });
 
         return {
             shiftId: shift._id,
@@ -121,7 +95,285 @@ export class CashRegisterService {
             },
             totalSales: shift.closingBalance - shift.openingBalance,
             discrepancy: shift.discrepancy,
+            transactions: transactions,
             notes: shift.notes
+        };
+    }
+
+    async getDailyReport(date: Date): Promise<any> {
+        const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+
+        const shifts = await this.cashRegisterModel.find({
+            openingTime: { $gte: startOfDay, $lte: endOfDay },
+            isClosed: true
+        }).populate('transactions');
+
+        let totalSales = 0;
+        let totalCash = 0;
+        let totalCredit = 0;
+        let totalDebit = 0;
+        let totalOther = 0;
+
+        shifts.forEach(shift => {
+            totalSales += shift.closingBalance - shift.openingBalance;
+            totalCash += shift.cashInDrawer - shift.openingBalance;
+            totalCredit += shift.creditCardTotal;
+            totalDebit += shift.debitCardTotal;
+            totalOther += shift.otherPaymentTotal;
+        });
+
+        return {
+            date: date,
+            totalSales,
+            totalCash,
+            totalCredit,
+            totalDebit,
+            totalOther,
+            netProfit: totalSales,
+            shifts: shifts.map(shift => ({
+                shiftId: shift._id,
+                cashier: shift.cashier,
+                shift: shift.shift,
+                sales: shift.closingBalance - shift.openingBalance,
+                transactions: shift.transactions
+            }))
+        };
+    }
+
+    async getPeriodicReport(startDate: Date, endDate: Date): Promise<any> {
+        const shifts = await this.cashRegisterModel.find({
+            openingTime: { $gte: startDate, $lte: endDate },
+            isClosed: true
+        }).populate('transactions');
+
+        let totalSales = 0;
+        let totalCash = 0;
+        let totalCredit = 0;
+        let totalDebit = 0;
+        let totalOther = 0;
+
+        const dailyReports = {};
+
+        shifts.forEach(shift => {
+            const shiftDate = shift.openingTime.toISOString().split('T')[0];
+            if (!dailyReports[shiftDate]) {
+                dailyReports[shiftDate] = {
+                    totalSales: 0,
+                    totalCash: 0,
+                    totalCredit: 0,
+                    totalDebit: 0,
+                    totalOther: 0,
+                    shifts: []
+                };
+            }
+
+            const shiftSales = shift.closingBalance - shift.openingBalance;
+            totalSales += shiftSales;
+            totalCash += shift.cashInDrawer - shift.openingBalance;
+            totalCredit += shift.creditCardTotal;
+            totalDebit += shift.debitCardTotal;
+            totalOther += shift.otherPaymentTotal;
+
+            dailyReports[shiftDate].totalSales += shiftSales;
+            dailyReports[shiftDate].totalCash += shift.cashInDrawer - shift.openingBalance;
+            dailyReports[shiftDate].totalCredit += shift.creditCardTotal;
+            dailyReports[shiftDate].totalDebit += shift.debitCardTotal;
+            dailyReports[shiftDate].totalOther += shift.otherPaymentTotal;
+            dailyReports[shiftDate].shifts.push({
+                shiftId: shift._id,
+                cashier: shift.cashier,
+                shift: shift.shift,
+                sales: shiftSales,
+                transactions: shift.transactions
+            });
+        });
+
+        return {
+            startDate,
+            endDate,
+            totalSales,
+            totalCash,
+            totalCredit,
+            totalDebit,
+            totalOther,
+            netProfit: totalSales,
+            dailyReports
+        };
+    }
+
+    async addTransaction(shiftId: string, transaction: Transaction): Promise<void> {
+        const shift = await this.cashRegisterModel.findById(shiftId);
+        if (!shift) {
+            throw new NotFoundException(`Shift with ID "${shiftId}" not found`);
+        }
+        const newTransaction = new this.transactionModel(transaction);
+        await newTransaction.save();
+        shift.transactions.push(newTransaction._id);
+        await shift.save();
+    }
+
+    async getCurrentCashStatus(): Promise<any> {
+        const latestShift = await this.cashRegisterModel.findOne({ isClosed: false }).sort({ openingTime: -1 });
+        if (!latestShift) {
+            throw new NotFoundException('No open shift found');
+        }
+
+        const transactions = await this.transactionModel.find({ _id: { $in: latestShift.transactions } });
+
+        let currentBalance = latestShift.openingBalance;
+        let cashTransactions = 0;
+        let creditCardTransactions = 0;
+        let debitCardTransactions = 0;
+        let otherTransactions = 0;
+
+        transactions.forEach(transaction => {
+            switch (transaction.paymentMethod) {
+                case 'cash':
+                    currentBalance += transaction.amount;
+                    cashTransactions += transaction.amount;
+                    break;
+                case 'creditCard':
+                    creditCardTransactions += transaction.amount;
+                    break;
+                case 'debitCard':
+                    debitCardTransactions += transaction.amount;
+                    break;
+                case 'other':
+                    otherTransactions += transaction.amount;
+                    break;
+            }
+        });
+
+        return {
+            shiftId: latestShift._id,
+            cashier: latestShift.cashier,
+            shift: latestShift.shift,
+            openingTime: latestShift.openingTime,
+            currentBalance,
+            openingBalance: latestShift.openingBalance,
+            cashTransactions,
+            creditCardTransactions,
+            debitCardTransactions,
+            otherTransactions,
+            totalTransactions: cashTransactions + creditCardTransactions + debitCardTransactions + otherTransactions
+        };
+    }
+
+    /////////////////////////////////////////////!SECTION
+
+
+    async getAllShifts(paginationDto: PaginationDto) {
+        return this.paginationService.paginate(this.cashRegisterModel, paginationDto);
+    }
+
+    async getOpenShifts() {
+        return this.cashRegisterModel.find({ isClosed: false }).sort({ openingTime: -1 }).exec();
+    }
+
+    async getClosedShifts(paginationDto: PaginationDto) {
+        return this.paginationService.paginate(
+            this.cashRegisterModel.find({ isClosed: true }).sort({ closingTime: -1 }),
+            paginationDto
+        );
+    }
+
+    async getAllTransactions(paginationDto: PaginationDto) {
+        return this.paginationService.paginate(this.transactionModel, paginationDto);
+    }
+
+    async getTransactionsByShift(shiftId: string, paginationDto: PaginationDto) {
+        const shift = await this.cashRegisterModel.findById(shiftId);
+        if (!shift) {
+            throw new NotFoundException(`Shift with ID "${shiftId}" not found`);
+        }
+        return this.paginationService.paginate(
+            this.transactionModel.find({ _id: { $in: shift.transactions } }),
+            paginationDto
+        );
+    }
+
+    async getDailySummary(date: Date) {
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const shifts = await this.cashRegisterModel.find({
+            openingTime: { $gte: startOfDay, $lte: endOfDay },
+            isClosed: true
+        }).populate('transactions');
+
+        const summary = this.calculateSummary(shifts);
+        summary.date = date;
+        summary.shiftsCount = shifts.length;
+
+        return summary;
+    }
+
+    async getMonthlySummary(year: number, month: number) {
+        const startOfMonth = new Date(year, month - 1, 1);
+        const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+
+        const shifts = await this.cashRegisterModel.find({
+            openingTime: { $gte: startOfMonth, $lte: endOfMonth },
+            isClosed: true
+        }).populate('transactions');
+
+        const summary = this.calculateSummary(shifts);
+        summary.year = year;
+        summary.month = month;
+        summary.shiftsCount = shifts.length;
+
+        return summary;
+    }
+
+    async getYearlySummary(year: number) {
+        const startOfYear = new Date(year, 0, 1);
+        const endOfYear = new Date(year, 11, 31, 23, 59, 59, 999);
+
+        const shifts = await this.cashRegisterModel.find({
+            openingTime: { $gte: startOfYear, $lte: endOfYear },
+            isClosed: true
+        }).populate('transactions');
+
+        const summary = this.calculateSummary(shifts);
+        summary.year = year;
+        summary.shiftsCount = shifts.length;
+
+        return summary;
+    }
+
+    private calculateSummary(shifts: CashRegister[]) {
+        let totalSales = 0;
+        let totalCash = 0;
+        let totalCredit = 0;
+        let totalDebit = 0;
+        let totalOther = 0;
+        let totalExpenses = 0;
+
+        shifts.forEach(shift => {
+            totalSales += shift.closingBalance - shift.openingBalance;
+            totalCash += shift.cashInDrawer - shift.openingBalance;
+            totalCredit += shift.creditCardTotal;
+            totalDebit += shift.debitCardTotal;
+            totalOther += shift.otherPaymentTotal;
+
+            shift.transactions.forEach(transaction => {
+                if (transaction.type === 'expense') {
+                    totalExpenses += transaction.amount;
+                }
+            });
+        });
+
+        return {
+            totalSales,
+            totalCash,
+            totalCredit,
+            totalDebit,
+            totalOther,
+            totalExpenses,
+            netProfit: totalSales - totalExpenses
         };
     }
 }

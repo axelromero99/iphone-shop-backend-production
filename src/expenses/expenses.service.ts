@@ -16,6 +16,7 @@ import { Expense } from 'src/schemas/expense.schema';
 export class ExpensesService {
     constructor(@InjectModel('Expense') private expenseModel: Model<any>,
         private readonly paginationService: PaginationService,
+        private readonly cashRegisterService: CashRegisterService,
 
     ) { }
 
@@ -23,9 +24,37 @@ export class ExpensesService {
         return this.paginationService.paginate(this.expenseModel, paginationDto);
     }
 
-    async create(createExpenseDto: any) {
-        const createdExpense = new this.expenseModel(createExpenseDto);
-        return createdExpense.save();
+    // async create(createExpenseDto: any) {
+    //     const createdExpense = new this.expenseModel(createExpenseDto);
+    //     return createdExpense.save();
+    // }
+
+
+    async create(createExpenseDto: any): Promise<Expense> {
+        const session = await this.expenseModel.db.startSession();
+        session.startTransaction();
+
+        try {
+            const createdExpense = new this.expenseModel(createExpenseDto);
+            await createdExpense.save({ session });
+
+            // Registrar la transacción en el turno actual
+            const currentShift = await this.cashRegisterService.getCurrentShift();
+            await this.cashRegisterService.addTransaction(currentShift._id, {
+                type: 'expense',
+                amount: createExpenseDto.amount,
+                paymentMethod: createExpenseDto.paymentMethod,
+                relatedDocumentId: createdExpense._id
+            });
+
+            await session.commitTransaction();
+            return createdExpense;
+        } catch (error) {
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            session.endSession();
+        }
     }
 
     async findAll() {

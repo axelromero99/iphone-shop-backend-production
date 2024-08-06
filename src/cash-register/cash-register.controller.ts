@@ -65,4 +65,63 @@ export class CashRegisterController {
     getShiftReport(@Param('id') id: string) {
         return this.cashRegisterService.getShiftReport(id);
     }
+
+    ///////////////////////////////////////////////////////////////!SECTION
+
+
+    @Get('periodic-report')
+    getPeriodicReport(
+        @Query('startDate') startDate: Date,
+        @Query('endDate') endDate: Date
+    ) {
+        return this.cashRegisterService.getPeriodicReport(startDate, endDate);
+    }
+
+    @Get('current-status')
+    getCurrentCashStatus() {
+        return this.cashRegisterService.getCurrentCashStatus();
+    }
+
+    // asdasdasdasdasd
+
+
+    @Get('shifts')
+    getAllShifts(@Query() paginationDto: PaginationDto) {
+        return this.cashRegisterService.getAllShifts(paginationDto);
+    }
+
+    @Get('shifts/open')
+    getOpenShifts() {
+        return this.cashRegisterService.getOpenShifts();
+    }
+
+    @Get('shifts/closed')
+    getClosedShifts(@Query() paginationDto: PaginationDto) {
+        return this.cashRegisterService.getClosedShifts(paginationDto);
+    }
+
+    @Get('transactions')
+    getAllTransactions(@Query() paginationDto: PaginationDto) {
+        return this.cashRegisterService.getAllTransactions(paginationDto);
+    }
+
+    @Get('transactions/:shiftId')
+    getTransactionsByShift(@Param('shiftId') shiftId: string, @Query() paginationDto: PaginationDto) {
+        return this.cashRegisterService.getTransactionsByShift(shiftId, paginationDto);
+    }
+
+    @Get('summary/daily')
+    getDailySummary(@Query('date') date: Date) {
+        return this.cashRegisterService.getDailySummary(date);
+    }
+
+    @Get('summary/monthly')
+    getMonthlySummary(@Query('year') year: number, @Query('month') month: number) {
+        return this.cashRegisterService.getMonthlySummary(year, month);
+    }
+
+    @Get('summary/yearly')
+    getYearlySummary(@Query('year') year: number) {
+        return this.cashRegisterService.getYearlySummary(year);
+    }
 }
