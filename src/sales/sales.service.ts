@@ -25,42 +25,7 @@ export class SalesService {
     ) { }
 
 
-
-    // async create(createSaleDto: any): Promise<Sale> {
-    //     const session = await this.saleModel.db.startSession();
-    //     session.startTransaction();
-
-    //     try {
-    //         // Verificar stock y reducirlo
-    //         for (const item of createSaleDto.products) {
-    //             const product = await this.productsService.findOne(item.product.toString());
-    //             if (!product) {
-    //                 throw new NotFoundException(`Product with ID "${item.product}" not found`);
-    //             }
-    //             if (product.stock < item.quantity) {
-    //                 throw new BadRequestException(`Insufficient stock for product "${product.name}"`);
-    //             }
-    //             await this.productsService.updateStock(item.product.toString(), -item.quantity, session);
-    //         }
-
-    //         // Crear la venta
-    //         const createdSale = new this.saleModel(createSaleDto);
-    //         await createdSale.save({ session });
-
-    //         // Actualizar la caja
-    //         await this.cashRegisterService.addIncome(createSaleDto.payment.totalPriceARS, 'Sale', session);
-
-    //         await session.commitTransaction();
-    //         return createdSale;
-    //     } catch (error) {
-    //         await session.abortTransaction();
-    //         throw error;
-    //     } finally {
-    //         session.endSession();
-    //     }
-    // }
-
-    async create(createSaleDto: CreateSaleDto): Promise<Sale> {
+    async create(createSaleDto: any): Promise<Sale> {
         const session = await this.saleModel.db.startSession();
         session.startTransaction();
 
@@ -82,7 +47,7 @@ export class SalesService {
             await createdSale.save({ session });
 
             // Registrar la transacción en el turno actual
-            const currentShift = await this.cashRegisterService.getCurrentShift();
+            const currentShift: any = await this.cashRegisterService.getCurrentShift();
             await this.cashRegisterService.addTransaction(currentShift._id, {
                 type: 'sale',
                 amount: createSaleDto.payment.totalPriceARS,
@@ -98,6 +63,46 @@ export class SalesService {
         } finally {
             session.endSession();
         }
+    }
+
+    async getPeriodicReport(startDate: Date, endDate: Date): Promise<any> {
+        const sales = await this.saleModel.find({
+            createdAt: { $gte: startDate, $lte: endDate }
+        }).populate('products.product').exec();
+
+        const totalSales = sales.reduce((sum, sale) => sum + sale.payment.totalPriceARS, 0);
+        const totalItems = sales.reduce((sum, sale) => sum + sale.products.reduce((itemSum, product) => itemSum + product.quantity, 0), 0);
+
+        const productSales = sales.reduce((acc, sale) => {
+            sale.products.forEach((item: any) => {
+                if (!acc[item.product._id]) {
+                    acc[item.product._id] = {
+                        name: item.product.name,
+                        quantity: 0,
+                        totalSales: 0
+                    };
+                }
+                acc[item.product._id].quantity += item.quantity;
+                acc[item.product._id].totalSales += item.quantity * item.product.priceARS;
+            });
+            return acc;
+        }, {});
+
+        return {
+            totalSales,
+            totalItems,
+            salesCount: sales.length,
+            productSales: Object.values(productSales),
+            sales
+        };
+    }
+
+    async getRecentSales(limit: number): Promise<Sale[]> {
+        return this.saleModel.find()
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .populate('products.product')
+            .exec();
     }
 
     async findAll(): Promise<Sale[]> {

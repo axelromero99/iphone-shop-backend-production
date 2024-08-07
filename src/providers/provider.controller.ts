@@ -49,7 +49,7 @@ export class ProvidersController {
         @Query('startDate') startDate: Date,
         @Query('endDate') endDate: Date
     ) {
-        return this.providerService.getProviderPurchaseHistory(id, startDate, endDate);
+        return this.providersService.getProviderPurchaseHistory(id, startDate, endDate);
     }
 
     @Get('purchase-summary')
@@ -57,6 +57,6 @@ export class ProvidersController {
         @Query('startDate') startDate: Date,
         @Query('endDate') endDate: Date
     ) {
-        return this.providerService.getTotalPurchasesByProvider(startDate, endDate);
+        return this.providersService.getTotalPurchasesByProvider(startDate, endDate);
     }
 }

@@ -86,7 +86,7 @@ export class CashRegisterController {
 
 
     @Get('shifts')
-    getAllShifts(@Query() paginationDto: PaginationDto) {
+    getAllShifts(@Query() paginationDto: any) {
         return this.cashRegisterService.getAllShifts(paginationDto);
     }
 
@@ -96,17 +96,17 @@ export class CashRegisterController {
     }
 
     @Get('shifts/closed')
-    getClosedShifts(@Query() paginationDto: PaginationDto) {
+    getClosedShifts(@Query() paginationDto: any) {
         return this.cashRegisterService.getClosedShifts(paginationDto);
     }
 
     @Get('transactions')
-    getAllTransactions(@Query() paginationDto: PaginationDto) {
+    getAllTransactions(@Query() paginationDto: any) {
         return this.cashRegisterService.getAllTransactions(paginationDto);
     }
 
     @Get('transactions/:shiftId')
-    getTransactionsByShift(@Param('shiftId') shiftId: string, @Query() paginationDto: PaginationDto) {
+    getTransactionsByShift(@Param('shiftId') shiftId: string, @Query() paginationDto: any) {
         return this.cashRegisterService.getTransactionsByShift(shiftId, paginationDto);
     }
 

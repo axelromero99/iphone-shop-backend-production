@@ -1,18 +1,18 @@
 
-// src/banner/banner.module.ts
+// src/report/report.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BannersService } from './reports.service';
-import { BannerController } from './reports.controller';
-import { BannerSchema } from '../schemas/banner.schema';
+import { ReportService } from './reports.service';
+import { ReportController } from './reports.controller';
+import { ReportSchema } from 'src/schemas/report.schema';
 import { CommonModule } from 'src/common/common.module';
 
 
 @Module({
-    imports: [MongooseModule.forFeature([{ name: 'Banner', schema: BannerSchema }]),
+    imports: [MongooseModule.forFeature([{ name: 'Report', schema: ReportSchema }]),
         CommonModule,
     ],
-    providers: [BannersService],
-    controllers: [BannerController],
+    providers: [ReportService],
+    controllers: [ReportController],
 })
-export class BannersModule { }
+export class ReportsModule { }

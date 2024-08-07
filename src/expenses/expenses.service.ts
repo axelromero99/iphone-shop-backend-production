@@ -3,6 +3,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CashRegisterService } from 'src/cash-register/cash-register.service';
 // import { CreateExpenseDto } from './dto/create-expense.dto';
 // import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
@@ -24,10 +25,28 @@ export class ExpensesService {
         return this.paginationService.paginate(this.expenseModel, paginationDto);
     }
 
-    // async create(createExpenseDto: any) {
-    //     const createdExpense = new this.expenseModel(createExpenseDto);
-    //     return createdExpense.save();
-    // }
+    async getPeriodicReport(startDate: Date, endDate: Date): Promise<any> {
+        const expenses = await this.expenseModel.find({
+            date: { $gte: startDate, $lte: endDate }
+        }).exec();
+
+        const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+
+        const expensesByCategory = expenses.reduce((acc, expense) => {
+            if (!acc[expense.category]) {
+                acc[expense.category] = 0;
+            }
+            acc[expense.category] += expense.amount;
+            return acc;
+        }, {});
+
+        return {
+            totalExpenses,
+            expenseCount: expenses.length,
+            expensesByCategory,
+            expenses
+        };
+    }
 
 
     async create(createExpenseDto: any): Promise<Expense> {
@@ -39,7 +58,7 @@ export class ExpensesService {
             await createdExpense.save({ session });
 
             // Registrar la transacción en el turno actual
-            const currentShift = await this.cashRegisterService.getCurrentShift();
+            const currentShift: any = await this.cashRegisterService.getCurrentShift();
             await this.cashRegisterService.addTransaction(currentShift._id, {
                 type: 'expense',
                 amount: createExpenseDto.amount,

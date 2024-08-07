@@ -34,19 +34,23 @@ export class ProductTechnicalServiceService {
         return this.productTechnicalServiceModel.findByIdAndUpdate(id, updateProductTechnicalServiceDto, { new: true }).exec();
     }
 
-    async updateStock(id: string, quantity: number): Promise<ProductTechnicalService> {
-        const product = await this.productTechnicalServiceModel.findById(id);
+
+    async updateStock(productId: string, quantity: number, session?: any): Promise<any> {
+        const options = session ? { session } : {};
+        const product = await this.productTechnicalServiceModel.findById(productId).session(session);
         if (!product) {
-            throw new NotFoundException(`ProductTechnicalService with ID "${id}" not found`);
+            throw new NotFoundException(`Producto con ID "${productId}" no encontrado`);
         }
 
         const newStock = product.stock + quantity;
         if (newStock < 0) {
-            throw new BadRequestException(`Cannot reduce stock below 0. Current stock: ${product.stock}, Requested change: ${quantity}`);
+            throw new BadRequestException(`No hay suficiente stock para el producto "${product.name}"`);
         }
 
         product.stock = newStock;
-        return product.save();
+        await product.save(options);
+
+        return product;
     }
 
     async softDelete(id: string): Promise<ProductTechnicalService> {

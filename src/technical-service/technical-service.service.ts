@@ -46,7 +46,7 @@ export class TechnicalServiceService {
 
             // Registrar la transacción en el turno actual si hay un pago
             if (createTechnicalServiceDto.service.price) {
-                const currentShift = await this.cashRegisterService.getCurrentShift();
+                const currentShift: any = await this.cashRegisterService.getCurrentShift();
                 await this.cashRegisterService.addTransaction(currentShift._id, {
                     type: 'technicalService',
                     amount: parseFloat(createTechnicalServiceDto.service.price),
@@ -110,6 +110,43 @@ export class TechnicalServiceService {
         } finally {
             session.endSession();
         }
+    }
+
+    async getPeriodicReport(startDate: Date, endDate: Date): Promise<any> {
+        const services = await this.technicalServiceModel.find({
+            'service.entryDate': { $gte: startDate, $lte: endDate }
+        }).populate('usedProducts.product').exec();
+
+        const totalRevenue = services.reduce((sum, service) => sum + (parseFloat(service.service.price) || 0), 0);
+        const totalServices = services.length;
+
+        const productUsage = services.reduce((acc, service) => {
+            service.usedProducts.forEach((item: any) => {
+                if (!acc[item.product._id]) {
+                    acc[item.product._id] = {
+                        name: item.product.name,
+                        quantity: 0
+                    };
+                }
+                acc[item.product._id].quantity += item.quantity;
+            });
+            return acc;
+        }, {});
+
+        return {
+            totalRevenue,
+            totalServices,
+            productUsage: Object.values(productUsage),
+            services
+        };
+    }
+
+    async getRecentServices(limit: number): Promise<TechnicalService[]> {
+        return this.technicalServiceModel.find()
+            .sort({ 'service.entryDate': -1 })
+            .limit(limit)
+            .populate('usedProducts.product')
+            .exec();
     }
 
     async softDelete(id: string): Promise<TechnicalService> {

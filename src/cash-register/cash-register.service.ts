@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 // import { CreateCashRegisterDto } from './dto/create-cash-register.dto';
@@ -7,14 +7,20 @@ import { Model } from 'mongoose';
 import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
 
 import { PaginationService } from 'src/common/services/pagination.service';
-import { CashRegister } from 'src/schemas/cash-register.schema';
+import { CashRegister, CashRegisterDocument } from 'src/schemas/cash-register.schema';
+import { Transaction, TransactionDocument } from 'src/schemas/transaction.schema';
+
 
 
 @Injectable()
 export class CashRegisterService {
-    constructor(@InjectModel('CashRegister') private cashRegisterModel: Model<any>,
+    constructor(
+        @InjectModel(CashRegister.name) private cashRegisterModel: Model<CashRegisterDocument>,
+        @InjectModel(Transaction.name) private transactionModel: Model<TransactionDocument>,
         private readonly paginationService: PaginationService,
     ) { }
+
+
 
 
     async findPaginated(paginationDto: PaginationDto) {
@@ -55,12 +61,60 @@ export class CashRegisterService {
         return cashRegister;
     }
 
-    async openShift(openShiftDto: OpenShiftDto): Promise<CashRegister> {
+    async addIncome(amount: number, description: string, session?: any): Promise<void> {
+        const currentShift: any = await this.getCurrentShift();
+        if (!currentShift) {
+            throw new NotFoundException('No hay un turno abierto actualmente');
+        }
+
+        const transaction = new this.transactionModel({
+            type: 'income',
+            amount,
+            description,
+            shiftId: currentShift._id,
+        });
+
+        await transaction.save({ session });
+
+        currentShift.transactions.push(transaction._id);
+        currentShift.cashInDrawer += amount;
+        await currentShift.save({ session });
+    }
+
+    async addExpense(amount: number, description: string, session?: any): Promise<void> {
+        const currentShift: any = await this.getCurrentShift();
+        if (!currentShift) {
+            throw new NotFoundException('No hay un turno abierto actualmente');
+        }
+
+        if (currentShift.cashInDrawer < amount) {
+            throw new BadRequestException('No hay suficiente efectivo en caja para este gasto');
+        }
+
+        const transaction = new this.transactionModel({
+            type: 'expense',
+            amount,
+            description,
+            shiftId: currentShift._id,
+        });
+
+        await transaction.save({ session });
+
+        currentShift.transactions.push(transaction._id);
+        currentShift.cashInDrawer -= amount;
+        await currentShift.save({ session });
+    }
+
+    async getCurrentShift(): Promise<CashRegister | null> {
+        return this.cashRegisterModel.findOne({ isClosed: false }).sort({ openingTime: -1 }).exec();
+    }
+
+    async openShift(openShiftDto: any): Promise<CashRegister> {
         const newShift = new this.cashRegisterModel(openShiftDto);
         return newShift.save();
     }
 
-    async closeShift(id: string, closeShiftDto: CloseShiftDto): Promise<CashRegister> {
+    async closeShift(id: string, closeShiftDto: any): Promise<CashRegister> {
         const shift = await this.cashRegisterModel.findById(id);
         if (!shift || shift.isClosed) {
             throw new NotFoundException(`Shift with ID "${id}" not found or already closed`);
@@ -202,12 +256,12 @@ export class CashRegisterService {
         };
     }
 
-    async addTransaction(shiftId: string, transaction: Transaction): Promise<void> {
+    async addTransaction(shiftId: string, transaction: any): Promise<void> {
         const shift = await this.cashRegisterModel.findById(shiftId);
         if (!shift) {
             throw new NotFoundException(`Shift with ID "${shiftId}" not found`);
         }
-        const newTransaction = new this.transactionModel(transaction);
+        const newTransaction: any = new this.transactionModel(transaction);
         await newTransaction.save();
         shift.transactions.push(newTransaction._id);
         await shift.save();
@@ -272,10 +326,10 @@ export class CashRegisterService {
     }
 
     async getClosedShifts(paginationDto: PaginationDto) {
-        return this.paginationService.paginate(
-            this.cashRegisterModel.find({ isClosed: true }).sort({ closingTime: -1 }),
-            paginationDto
-        );
+        // return this.paginationService.paginate(
+        return this.cashRegisterModel.find({ isClosed: true }).sort({ closingTime: -1 });
+        //     paginationDto
+        // );
     }
 
     async getAllTransactions(paginationDto: PaginationDto) {
@@ -287,10 +341,7 @@ export class CashRegisterService {
         if (!shift) {
             throw new NotFoundException(`Shift with ID "${shiftId}" not found`);
         }
-        return this.paginationService.paginate(
-            this.transactionModel.find({ _id: { $in: shift.transactions } }),
-            paginationDto
-        );
+        return this.transactionModel.find({ _id: { $in: shift.transactions } })
     }
 
     async getDailySummary(date: Date) {
@@ -304,7 +355,7 @@ export class CashRegisterService {
             isClosed: true
         }).populate('transactions');
 
-        const summary = this.calculateSummary(shifts);
+        const summary: any = this.calculateSummary(shifts);
         summary.date = date;
         summary.shiftsCount = shifts.length;
 
@@ -320,7 +371,7 @@ export class CashRegisterService {
             isClosed: true
         }).populate('transactions');
 
-        const summary = this.calculateSummary(shifts);
+        const summary: any = this.calculateSummary(shifts);
         summary.year = year;
         summary.month = month;
         summary.shiftsCount = shifts.length;
@@ -337,7 +388,7 @@ export class CashRegisterService {
             isClosed: true
         }).populate('transactions');
 
-        const summary = this.calculateSummary(shifts);
+        const summary: any = this.calculateSummary(shifts);
         summary.year = year;
         summary.shiftsCount = shifts.length;
 

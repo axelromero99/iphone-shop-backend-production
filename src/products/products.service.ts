@@ -1,5 +1,5 @@
 // src/products/products.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product, ProductDocument } from '../schemas/product.schema';
@@ -30,6 +30,26 @@ export class ProductsService {
         return this.productModel.findById(id).exec();
     }
 
+
+
+    async updateStock(productId: string, quantity: number, session?: any): Promise<Product> {
+        const options = session ? { session } : {};
+        const product = await this.productModel.findById(productId).session(session);
+        if (!product) {
+            throw new NotFoundException(`Producto con ID "${productId}" no encontrado`);
+        }
+
+        const newStock = product.stock + quantity;
+        if (newStock < 0) {
+            throw new BadRequestException(`No hay suficiente stock para el producto "${product.name}"`);
+        }
+
+        product.stock = newStock;
+        await product.save(options);
+
+        return product;
+    }
+
     async update(id: string, updateProductDto: any): Promise<Product> {
         return this.productModel.findByIdAndUpdate(id, updateProductDto, { new: true }).exec();
     }
@@ -51,11 +71,4 @@ export class ProductsService {
         return product;
     }
 
-    async updateStock(id: string, quantity: number): Promise<Product> {
-        return this.productModel.findByIdAndUpdate(
-            id,
-            { $inc: { stock: quantity } },
-            { new: true }
-        ).exec();
-    }
 }

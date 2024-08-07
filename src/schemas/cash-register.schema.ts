@@ -1,7 +1,11 @@
 
 // src/cash-register/schemas/cash-register.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+import { Transaction } from './transaction.schema';
+
+export type CashRegisterDocument = CashRegister & Document;
+
 @Schema({ timestamps: true })
 export class CashRegister {
   @Prop({ required: true })
@@ -39,6 +43,9 @@ export class CashRegister {
 
   @Prop()
   notes: string;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }] })
+  transactions: Transaction[];
 
   @Prop({ default: false })
   isClosed: boolean;

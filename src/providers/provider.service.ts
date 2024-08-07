@@ -9,14 +9,17 @@ import { Provider, ProviderDocument } from '../schemas/provider.schema';
 import { ProductsService } from '../products/products.service';
 import { PaginationService } from 'src/common/services/pagination.service';
 import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
+import { ProductTechnicalServiceService } from 'src/products/product-technical-service.service';
+import { CashRegisterService } from 'src/cash-register/cash-register.service';
 
 
 @Injectable()
 export class ProvidersService {
     constructor(
         @InjectModel(Provider.name) private providerModel: Model<ProviderDocument>,
-        private productsService: ProductsService,
         private readonly paginationService: PaginationService,
+        private readonly productTechnicalServiceService: ProductTechnicalServiceService,
+        private readonly cashRegisterService: CashRegisterService,
 
     ) { }
 
@@ -35,7 +38,7 @@ export class ProvidersService {
             }
 
             // Registrar el gasto en la caja
-            await this.cashRegisterService.registerExpense(createProviderDto.totalPrice, 'Provider Purchase', session);
+            await this.cashRegisterService.addExpense(createProviderDto.totalPrice, 'Provider Purchase', session);
 
             await session.commitTransaction();
             return newProvider;
@@ -59,6 +62,8 @@ export class ProvidersService {
         return this.providerModel.findById(id).populate('products').exec();
     }
 
+
+
     async update(id: string, updateProviderDto: any): Promise<Provider> {
         const session = await this.providerModel.db.startSession();
         session.startTransaction();
@@ -73,7 +78,7 @@ export class ProvidersService {
             for (const item of oldProvider.products) {
                 await this.productTechnicalServiceService.updateStock(item.product.toString(), -item.quantity, session);
             }
-            await this.cashRegisterService.registerIncome(oldProvider.totalPrice, 'Provider Purchase Reversal', session);
+            await this.cashRegisterService.addIncome(oldProvider.totalPrice, 'Provider Purchase Reversal', session);
 
             // Aplicar nuevos cambios
             const updatedProvider = await this.providerModel.findByIdAndUpdate(id, updateProviderDto, { new: true, session }).exec();
@@ -81,7 +86,7 @@ export class ProvidersService {
             for (const item of updateProviderDto.products) {
                 await this.productTechnicalServiceService.updateStock(item.product.toString(), item.quantity, session);
             }
-            await this.cashRegisterService.registerExpense(updateProviderDto.totalPrice, 'Updated Provider Purchase', session);
+            await this.cashRegisterService.addExpense(updateProviderDto.totalPrice, 'Updated Provider Purchase', session);
 
             await session.commitTransaction();
             return updatedProvider;
