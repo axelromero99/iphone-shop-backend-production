@@ -1,6 +1,6 @@
 
 // src/expenses/expenses.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CashRegisterService } from 'src/cash-register/cash-register.service';
@@ -49,6 +49,34 @@ export class ExpensesService {
     }
 
 
+    // async create(createExpenseDto: any): Promise<Expense> {
+    //     const session = await this.expenseModel.db.startSession();
+    //     session.startTransaction();
+
+    //     try {
+    //         const createdExpense = new this.expenseModel(createExpenseDto);
+    //         await createdExpense.save({ session });
+
+    //         // Registrar la transacción en el turno actual
+    //         const currentShift: any = await this.cashRegisterService.getCurrentShift();
+    //         await this.cashRegisterService.addTransaction(currentShift._id, {
+    //             type: 'expense',
+    //             amount: createExpenseDto.amount,
+    //             paymentMethod: createExpenseDto.paymentMethod,
+    //             relatedDocumentId: createdExpense._id
+    //         });
+
+    //         await session.commitTransaction();
+    //         return createdExpense;
+    //     } catch (error) {
+    //         await session.abortTransaction();
+    //         throw error;
+    //     } finally {
+    //         session.endSession();
+    //     }
+    // }
+
+
     async create(createExpenseDto: any): Promise<Expense> {
         const session = await this.expenseModel.db.startSession();
         session.startTransaction();
@@ -57,8 +85,13 @@ export class ExpensesService {
             const createdExpense = new this.expenseModel(createExpenseDto);
             await createdExpense.save({ session });
 
-            // Registrar la transacción en el turno actual
+            // Verificar si hay un turno abierto
             const currentShift: any = await this.cashRegisterService.getCurrentShift();
+            if (!currentShift) {
+                throw new BadRequestException('No hay un turno de caja abierto. No se puede registrar el gasto.');
+            }
+
+            // Registrar la transacción en el turno actual
             await this.cashRegisterService.addTransaction(currentShift._id, {
                 type: 'expense',
                 amount: createExpenseDto.amount,
