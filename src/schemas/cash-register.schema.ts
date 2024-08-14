@@ -1,5 +1,3 @@
-
-// src/cash-register/schemas/cash-register.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { Transaction } from './transaction.schema';
@@ -38,7 +36,7 @@ export class CashRegister {
   @Prop({ required: true })
   cashier: string;
 
-  @Prop({ enum: ['morning', 'afternoon'], required: true })
+  @Prop({ enum: ['morning', 'afternoon', 'evening'], required: true })
   shift: string;
 
   @Prop()
@@ -52,6 +50,9 @@ export class CashRegister {
 
   @Prop({ default: false })
   isDeleted: boolean;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'CashClosing' })
+  cashClosing: mongoose.Types.ObjectId;
 }
 
 export const CashRegisterSchema = SchemaFactory.createForClass(CashRegister);

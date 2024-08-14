@@ -1,6 +1,5 @@
-// src/cash-register/schemas/transaction.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 export type TransactionDocument = Transaction & Document;
 
@@ -16,7 +15,19 @@ export class Transaction {
   paymentMethod: string;
 
   @Prop({ required: true })
-  relatedDocumentId: string;
+  description: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'CashRegister', required: true })
+  cashRegister: mongoose.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'CashClosing' })
+  cashClosing: mongoose.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, refPath: 'relatedDocumentType' })
+  relatedDocument: mongoose.Types.ObjectId;
+
+  @Prop({ required: true, enum: ['Sale', 'TechnicalService', 'Expense', 'Other'] })
+  relatedDocumentType: string;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

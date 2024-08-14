@@ -22,7 +22,6 @@ export class TechnicalServiceService {
     }
 
 
-
     async create(createTechnicalServiceDto: any): Promise<TechnicalService> {
         const session = await this.technicalServiceModel.db.startSession();
         session.startTransaction();
@@ -44,14 +43,18 @@ export class TechnicalServiceService {
             const createdService = new this.technicalServiceModel(createTechnicalServiceDto);
             await createdService.save({ session });
 
+            const createdServiceId: any = createdService._id
+
+
             // Registrar la transacción en el turno actual si hay un pago
             if (createTechnicalServiceDto.service.price) {
-                const currentShift: any = await this.cashRegisterService.getCurrentShift();
-                await this.cashRegisterService.addTransaction(currentShift._id, {
+                await this.cashRegisterService.addTransaction({
                     type: 'technicalService',
                     amount: parseFloat(createTechnicalServiceDto.service.price),
                     paymentMethod: createTechnicalServiceDto.service.paymentMethod,
-                    relatedDocumentId: createdService._id
+                    description: `Technical Service: ${createdService._id}`,
+                    relatedDocument: createdServiceId,
+                    relatedDocumentType: 'TechnicalService'
                 });
             }
 
@@ -64,6 +67,7 @@ export class TechnicalServiceService {
             session.endSession();
         }
     }
+
 
     async findAll(): Promise<TechnicalService[]> {
         return this.technicalServiceModel.find().populate('usedProducts.product').exec();

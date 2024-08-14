@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Model, Document } from 'mongoose';
+import { Model, Document, Query } from 'mongoose';
 import { PaginationDto } from '../dtos/pagination.dto';
 
 @Injectable()
 export class PaginationService {
     async paginate<T extends Document>(
-        model: Model<T>,
+        modelOrQuery: any,
         paginationDto: PaginationDto,
     ) {
         const {
@@ -18,8 +18,12 @@ export class PaginationService {
             useRegex = true,
         } = paginationDto;
 
-        let query = model.find();
-
+        let query: any;
+        if ('find' in modelOrQuery && typeof modelOrQuery.find === 'function') {
+            query = modelOrQuery.find();
+        } else {
+            query = modelOrQuery;
+        }
         // Apply search
         if (searchFields && searchFields.length > 0 && searchValue) {
             const searchConditions = searchFields.map(field =>
@@ -35,7 +39,7 @@ export class PaginationService {
         }
 
         // Execute query
-        const totalCount = await model.countDocuments(query);
+        const totalCount = await (modelOrQuery instanceof Model ? modelOrQuery.countDocuments(query.getFilter()) : query.countDocuments());
         const results = await query.skip(offset).limit(limit).exec();
 
         // Calculate pagination metadata

@@ -1,80 +1,58 @@
-
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, Put } from '@nestjs/common';
 import { CashRegisterService } from './cash-register.service';
-// import { CreateCashRegisterDto } from './dto/create-cash-register.dto';
-// import { UpdateCashRegisterDto } from './dto/update-cash-register.dto';
-import { AuditLog } from 'src/audit/audit-log.decorator';
+import { AuditLog } from '../audit/audit-log.decorator';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('cash-register')
 export class CashRegisterController {
     constructor(private readonly cashRegisterService: CashRegisterService) { }
 
     @AuditLog()
-    @Post()
-    create(@Body() createCashRegisterDto: any) {
-        return this.cashRegisterService.create(createCashRegisterDto);
-    }
-
-    @Get()
-    findAll() {
-        return this.cashRegisterService.findAll();
-    }
-
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.cashRegisterService.findOne(id);
-    }
-
-    @AuditLog()
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateCashRegisterDto: any) {
-        return this.cashRegisterService.update(id, updateCashRegisterDto);
-    }
-
-    @AuditLog()
-    @Delete(':id')
-    delete(@Param('id') id: string, @Query('permanent') permanent: boolean) {
-        if (permanent) {
-            return this.cashRegisterService.permanentDelete(id);
-        } else {
-            return this.cashRegisterService.softDelete(id);
-        }
-    }
-
-
     @Post('open-shift')
-    // @Auth(ValidRoles.admin, ValidRoles.cashier)
     openShift(@Body() openShiftDto: any) {
         return this.cashRegisterService.openShift(openShiftDto);
     }
 
-    @Put(':id/close-shift')
-    // @Auth(ValidRoles.admin, ValidRoles.cashier)
+    @AuditLog()
+    @Put('close-shift/:id')
     closeShift(@Param('id') id: string, @Body() closeShiftDto: any) {
         return this.cashRegisterService.closeShift(id, closeShiftDto);
     }
 
-    @Get('daily-report')
-    // @Auth(ValidRoles.admin)
-    getDailyReport(@Query('date') date: Date) {
-        return this.cashRegisterService.getDailyReport(date);
+    @AuditLog()
+    @Post('close-cash')
+    closeCashRegister(@Body() closeCashDto: any) {
+        return this.cashRegisterService.closeCashRegister(closeCashDto);
     }
 
     @Get('shift-report/:id')
-    // @Auth(ValidRoles.admin, ValidRoles.cashier)
     getShiftReport(@Param('id') id: string) {
         return this.cashRegisterService.getShiftReport(id);
     }
 
-    ///////////////////////////////////////////////////////////////!SECTION
+    @Get('cash-closing-report/:id')
+    getCashClosingReport(@Param('id') id: string) {
+        return this.cashRegisterService.getCashClosingReport(id);
+    }
 
+    @Get('transactions')
+    getTransactions(@Query() filters: any, @Query() paginationDto: PaginationDto) {
+        return this.cashRegisterService.getTransactions(filters, paginationDto);
+    }
 
-    @Get('periodic-report')
-    getPeriodicReport(
+    @Get('transactions/date-range')
+    getTransactionsByDateRange(
         @Query('startDate') startDate: Date,
-        @Query('endDate') endDate: Date
+        @Query('endDate') endDate: Date,
+        @Query() paginationDto: PaginationDto
     ) {
-        return this.cashRegisterService.getPeriodicReport(startDate, endDate);
+        return this.cashRegisterService.getTransactionsByDateRange(startDate, endDate, paginationDto);
+    }
+
+    @AuditLog()
+    @Post('transaction')
+    addTransaction(@Body() transaction: any) {
+        return this.cashRegisterService.addTransaction(transaction);
     }
 
     @Get('current-status')
@@ -82,46 +60,33 @@ export class CashRegisterController {
         return this.cashRegisterService.getCurrentCashStatus();
     }
 
-    // asdasdasdasdasd
-
-
-    @Get('shifts')
-    getAllShifts(@Query() paginationDto: any) {
-        return this.cashRegisterService.getAllShifts(paginationDto);
-    }
-
-    @Get('shifts/open')
-    getOpenShifts() {
-        return this.cashRegisterService.getOpenShifts();
-    }
-
-    @Get('shifts/closed')
-    getClosedShifts(@Query() paginationDto: any) {
-        return this.cashRegisterService.getClosedShifts(paginationDto);
-    }
-
-    @Get('transactions')
-    getAllTransactions(@Query() paginationDto: any) {
-        return this.cashRegisterService.getAllTransactions(paginationDto);
-    }
-
-    @Get('transactions/:shiftId')
-    getTransactionsByShift(@Param('shiftId') shiftId: string, @Query() paginationDto: any) {
-        return this.cashRegisterService.getTransactionsByShift(shiftId, paginationDto);
-    }
-
-    @Get('summary/daily')
+    @Get('daily-summary')
     getDailySummary(@Query('date') date: Date) {
         return this.cashRegisterService.getDailySummary(date);
     }
 
-    @Get('summary/monthly')
+    @Get('monthly-summary')
     getMonthlySummary(@Query('year') year: number, @Query('month') month: number) {
         return this.cashRegisterService.getMonthlySummary(year, month);
     }
 
-    @Get('summary/yearly')
+    @Get('yearly-summary')
     getYearlySummary(@Query('year') year: number) {
         return this.cashRegisterService.getYearlySummary(year);
+    }
+
+    @Get('open-shifts')
+    getOpenShifts() {
+        return this.cashRegisterService.getOpenShifts();
+    }
+
+    @Get('closed-shifts')
+    getClosedShifts(@Query() paginationDto: PaginationDto) {
+        return this.cashRegisterService.getClosedShifts(paginationDto);
+    }
+
+    @Get('cash-closings')
+    getCashClosings(@Query() paginationDto: PaginationDto) {
+        return this.cashRegisterService.getCashClosings(paginationDto);
     }
 }

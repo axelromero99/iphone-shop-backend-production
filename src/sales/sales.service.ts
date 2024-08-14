@@ -9,9 +9,7 @@ import { Sale, SaleDocument } from '../schemas/sale.schema';
 import { ProductsService } from '../products/products.service';
 import { PaginationService } from 'src/common/services/pagination.service';
 import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
-import { generateTrackingCode } from '../utils/tracking-code.generator';
 import { CashRegisterService } from '../cash-register/cash-register.service';
-
 
 @Injectable()
 export class SalesService {
@@ -20,12 +18,10 @@ export class SalesService {
         private productsService: ProductsService,
         private readonly paginationService: PaginationService,
         private cashRegisterService: CashRegisterService,
-
-
     ) { }
 
-
-    async create(createSaleDto: any): Promise<Sale> {
+    // async create(createSaleDto: any): Promise<Sale> {
+    async create(createSaleDto: any) {
         const session = await this.saleModel.db.startSession();
         session.startTransaction();
 
@@ -46,17 +42,23 @@ export class SalesService {
             const createdSale = new this.saleModel(createSaleDto);
             await createdSale.save({ session });
 
-            // Registrar la transacción en el turno actual
-            const currentShift: any = await this.cashRegisterService.getCurrentShift();
-            await this.cashRegisterService.addTransaction(currentShift._id, {
+            const createdSaleId: any = createdSale._id
+
+            // Obtener el método de pago de la venta
+            const paymentMethod = createSaleDto.payment.paymentDetails[0].method;
+
+            // Crear la transacción
+            const transaction = await this.cashRegisterService.addTransaction({
                 type: 'sale',
                 amount: createSaleDto.payment.totalPriceARS,
-                paymentMethod: createSaleDto.payment.method,
-                relatedDocumentId: createdSale._id
+                paymentMethod: paymentMethod,
+                description: `Sale: ${createdSale._id}`,
+                relatedDocument: createdSaleId,
+                relatedDocumentType: 'Sale'
             });
 
             await session.commitTransaction();
-            return createdSale;
+            return { sale: createdSale, transaction };
         } catch (error) {
             await session.abortTransaction();
             throw error;
@@ -64,6 +66,7 @@ export class SalesService {
             session.endSession();
         }
     }
+
 
     async getPeriodicReport(startDate: Date, endDate: Date): Promise<any> {
         const sales = await this.saleModel.find({

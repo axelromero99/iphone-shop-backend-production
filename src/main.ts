@@ -11,7 +11,7 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
   // app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(new TransformInterceptor());
+  // app.useGlobalInterceptors(new TransformInterceptor());
 
   await app.listen(3000);
 }

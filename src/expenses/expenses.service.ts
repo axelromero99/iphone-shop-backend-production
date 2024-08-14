@@ -49,34 +49,6 @@ export class ExpensesService {
     }
 
 
-    // async create(createExpenseDto: any): Promise<Expense> {
-    //     const session = await this.expenseModel.db.startSession();
-    //     session.startTransaction();
-
-    //     try {
-    //         const createdExpense = new this.expenseModel(createExpenseDto);
-    //         await createdExpense.save({ session });
-
-    //         // Registrar la transacción en el turno actual
-    //         const currentShift: any = await this.cashRegisterService.getCurrentShift();
-    //         await this.cashRegisterService.addTransaction(currentShift._id, {
-    //             type: 'expense',
-    //             amount: createExpenseDto.amount,
-    //             paymentMethod: createExpenseDto.paymentMethod,
-    //             relatedDocumentId: createdExpense._id
-    //         });
-
-    //         await session.commitTransaction();
-    //         return createdExpense;
-    //     } catch (error) {
-    //         await session.abortTransaction();
-    //         throw error;
-    //     } finally {
-    //         session.endSession();
-    //     }
-    // }
-
-
     async create(createExpenseDto: any): Promise<Expense> {
         const session = await this.expenseModel.db.startSession();
         session.startTransaction();
@@ -85,18 +57,13 @@ export class ExpensesService {
             const createdExpense = new this.expenseModel(createExpenseDto);
             await createdExpense.save({ session });
 
-            // Verificar si hay un turno abierto
-            const currentShift: any = await this.cashRegisterService.getCurrentShift();
-            if (!currentShift) {
-                throw new BadRequestException('No hay un turno de caja abierto. No se puede registrar el gasto.');
-            }
-
-            // Registrar la transacción en el turno actual
-            await this.cashRegisterService.addTransaction(currentShift._id, {
+            await this.cashRegisterService.addTransaction({
                 type: 'expense',
                 amount: createExpenseDto.amount,
                 paymentMethod: createExpenseDto.paymentMethod,
-                relatedDocumentId: createdExpense._id
+                description: createExpenseDto.description,
+                relatedDocument: createdExpense._id,
+                relatedDocumentType: 'Expense'
             });
 
             await session.commitTransaction();
@@ -108,7 +75,6 @@ export class ExpensesService {
             session.endSession();
         }
     }
-
     async findAll() {
         return this.expenseModel.find().exec();
     }

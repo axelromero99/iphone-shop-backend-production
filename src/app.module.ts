@@ -11,6 +11,7 @@ import { InventoryModule } from './inventory/inventory.module';
 import { CashRegisterModule } from './cash-register/cash-register.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { CloudinaryModule } from './common/cloudinary.module';
+import { ProviderModule } from './providers/provider.module';
 import { BannersModule } from './banner/banner.module';
 import { AuditModule } from './audit/audit.module'; // Importa el AuditModule
 
@@ -47,6 +48,7 @@ import { AuditLogInterceptor } from './audit/audit-log.interceptor';
     CashRegisterModule,
     ExpensesModule,
     CloudinaryModule,
+    ProviderModule,
     BannersModule,
     AuditModule, // Añade el AuditModule aquí
   ],
