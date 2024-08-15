@@ -333,39 +333,64 @@ export class CashRegisterService {
         return this.paginationService.paginate(this.cashClosingModel, paginationDto);
     }
 
-    async getCurrentShift(): Promise<CashRegisterDocument> {
-        const currentShift = await this.cashRegisterModel.findOne({ isClosed: false }).sort({ openingTime: -1 });
-        if (!currentShift) {
-            throw new NotFoundException('No open shift found');
-        }
-        return currentShift;
-    }
-
-
-    async addTransaction(transaction: Partial<Transaction>): Promise<Transaction> {
-        const currentShift = await this.getCurrentShift();
-        const newTransaction = new this.transactionModel({
-            ...transaction,
-            cashRegister: currentShift._id
-        });
-        await newTransaction.save();
-        currentShift.transactions.push(newTransaction);
-        await currentShift.save();
-        return newTransaction;
-    }
 
     async addExpense(amount: number, description: string, session?: any): Promise<void> {
-        const currentShift = await this.getCurrentShift();
+        const currentShift = await this.getCurrentShift(session);
+
+        if (isNaN(amount) || amount <= 0) {
+            throw new BadRequestException('Invalid expense amount');
+        }
+
         await this.addTransaction({
             type: 'expense',
             amount,
             description,
             paymentMethod: 'cash',
-        });
-        currentShift.cashInDrawer -= amount;
+            relatedDocumentType: 'Expense'
+        }, session);
+
+        console.log('currentShift.cashInDrawer', currentShift.cashInDrawer);
+        console.log('amount', amount);
+
+        const newCashInDrawer = (currentShift.cashInDrawer || 0) - amount;
+
+        // if (newCashInDrawer < 0) {
+        //     throw new BadRequestException('Insufficient funds in cash drawer');
+        // }
+
+        if (isNaN(newCashInDrawer)) {
+            throw new BadRequestException('Invalid cash in drawer calculation');
+        }
+
+        currentShift.cashInDrawer = newCashInDrawer;
         await currentShift.save({ session });
     }
 
+    async addTransaction(transaction: Partial<Transaction>, session?: any): Promise<Transaction> {
+        const currentShift = await this.getCurrentShift(session);
+        const newTransaction = new this.transactionModel({
+            ...transaction,
+            cashRegister: currentShift._id,
+            paymentMethod: transaction.paymentMethod || 'cash',
+            relatedDocumentType: transaction.relatedDocumentType || 'Other'
+        });
+        await newTransaction.save({ session });
+        currentShift.transactions.push(newTransaction);
+        await currentShift.save({ session });
+        return newTransaction;
+    }
+
+    private async getCurrentShift(session?: any): Promise<CashRegisterDocument> {
+        const query = this.cashRegisterModel.findOne({ isClosed: false }).sort({ openingTime: -1 });
+        if (session) {
+            query.session(session);
+        }
+        const currentShift = await query;
+        if (!currentShift) {
+            throw new NotFoundException('No open shift found');
+        }
+        return currentShift;
+    }
 
 
     async addIncome(amount: number, description: string, session?: any): Promise<void> {

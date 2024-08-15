@@ -25,29 +25,67 @@ export class ProvidersService {
 
 
     async create(createProviderDto: any): Promise<Provider> {
-        const session = await this.providerModel.db.startSession();
-        session.startTransaction();
+        const maxRetries = 3;
+        let retries = 0;
 
-        try {
-            const newProvider = new this.providerModel(createProviderDto);
-            await newProvider.save({ session });
+        while (retries < maxRetries) {
+            const session = await this.providerModel.db.startSession();
+            session.startTransaction();
 
-            // Actualizar stock de productos técnicos
-            for (const item of createProviderDto.products) {
-                await this.productTechnicalServiceService.updateStock(item.product.toString(), item.quantity, session);
+            try {
+                console.log(`Starting provider creation transaction (Attempt ${retries + 1})`);
+
+                const newProvider = new this.providerModel(createProviderDto);
+                console.log('Saving new provider');
+                await newProvider.save({ session });
+                console.log('New provider saved successfully');
+
+                console.log('Updating product stock');
+                for (const item of createProviderDto.products) {
+                    console.log(`Updating stock for product: ${item.product}`);
+                    await this.productTechnicalServiceService.updateStock(item.product.toString(), item.quantity, session);
+                }
+                console.log('Product stock updated successfully');
+
+                if (isNaN(createProviderDto.totalPrice) || createProviderDto.totalPrice <= 0) {
+                    throw new BadRequestException('Invalid total price for provider purchase');
+                }
+
+                console.log('Adding expense to cash register');
+                await this.cashRegisterService.addExpense(
+                    createProviderDto.totalPrice,
+                    `Provider Purchase: ${createProviderDto.name}`,
+                    session
+                );
+                console.log('Expense added successfully');
+
+                console.log('Committing transaction');
+                await session.commitTransaction();
+                console.log('Transaction committed successfully');
+
+                return newProvider;
+            } catch (error) {
+                console.error(`Error in provider creation (Attempt ${retries + 1}):`, error);
+                await session.abortTransaction();
+                console.log('Transaction aborted');
+
+                if (error.code === 112 && error.codeName === 'WriteConflict' && retries < maxRetries - 1) {
+                    retries++;
+                    console.log(`Retrying operation (Attempt ${retries + 1})`);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                } else {
+                    if (error instanceof BadRequestException) {
+                        throw error;
+                    }
+                    throw new BadRequestException('Failed to create provider: ' + error.message);
+                }
+            } finally {
+                console.log('Ending session');
+                session.endSession();
             }
-
-            // Registrar el gasto en la caja
-            await this.cashRegisterService.addExpense(createProviderDto.totalPrice, 'Provider Purchase', session);
-
-            await session.commitTransaction();
-            return newProvider;
-        } catch (error) {
-            await session.abortTransaction();
-            throw error;
-        } finally {
-            session.endSession();
         }
+
+        throw new BadRequestException('Failed to create provider after multiple attempts');
     }
 
     async findAll(): Promise<Provider[]> {
