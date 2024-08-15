@@ -37,6 +37,8 @@ export class TechnicalServiceService {
                     throw new BadRequestException(`Insufficient stock for product "${product.name}"`);
                 }
                 await this.productTechnicalServiceService.updateStock(item.product.toString(), -item.quantity, session);
+
+
             }
 
             // Crear el servicio técnico

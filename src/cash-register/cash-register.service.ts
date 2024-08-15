@@ -366,6 +366,8 @@ export class CashRegisterService {
         await currentShift.save({ session });
     }
 
+
+
     async addIncome(amount: number, description: string, session?: any): Promise<void> {
         const currentShift = await this.getCurrentShift();
         await this.addTransaction({
