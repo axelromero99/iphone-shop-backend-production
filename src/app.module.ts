@@ -50,7 +50,7 @@ import { AuditLogInterceptor } from './audit/audit-log.interceptor';
     CloudinaryModule,
     ProviderModule,
     BannersModule,
-    AuditModule, // Añade el AuditModule aquí
+    AuditModule,
   ],
 })
 export class AppModule { }
