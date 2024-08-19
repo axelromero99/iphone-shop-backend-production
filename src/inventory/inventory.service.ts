@@ -6,9 +6,9 @@ import { Model } from 'mongoose';
 import { InventoryItem, InventoryItemDocument } from '../schemas/inventory-item.schema';
 // import { CreateInventoryItemDto } from './dto/create-inventory-item.dto';
 // import { UpdateInventoryItemDto } from './dto/update-inventory-item.dto';
-import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
+import { PaginationDto, SortOrder } from '../common/dtos/pagination.dto';
 
-import { PaginationService } from 'src/common/services/pagination.service';
+import { PaginationService } from '../common/services/pagination.service';
 
 
 
