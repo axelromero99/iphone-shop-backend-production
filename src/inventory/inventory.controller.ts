@@ -3,7 +3,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } fro
 import { InventoryService } from './inventory.service';
 // import { CreateInventoryItemDto } from './dto/create-inventory-item.dto';
 // import { UpdateInventoryItemDto } from './dto/update-inventory-item.dto';
-import { AuditLog } from 'src/audit/audit-log.decorator';
+import { AuditLog } from '../audit/audit-log.decorator';
 
 @Controller('inventory')
 export class InventoryController {

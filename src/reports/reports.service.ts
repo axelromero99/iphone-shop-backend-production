@@ -1,11 +1,11 @@
 // src/banner/banner.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { CashRegisterService } from 'src/cash-register/cash-register.service';
-import { TechnicalServiceService } from 'src/technical-service/technical-service.service';
-import { SalesService } from 'src/sales/sales.service';
-import { ExpensesService } from 'src/expenses/expenses.service';
-import { InventoryService } from 'src/inventory/inventory.service';
+import { CashRegisterService } from '../cash-register/cash-register.service';
+import { TechnicalServiceService } from '../technical-service/technical-service.service';
+import { SalesService } from '../sales/sales.service';
+import { ExpensesService } from '../expenses/expenses.service';
+import { InventoryService } from '../inventory/inventory.service';
 
 
 @Injectable()

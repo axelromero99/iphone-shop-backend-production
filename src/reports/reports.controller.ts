@@ -2,7 +2,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 import { ReportService } from './reports.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { AuditLog } from 'src/audit/audit-log.decorator';
 @Controller('reports')
 export class ReportController {
     constructor(private readonly reportService: ReportService) { }

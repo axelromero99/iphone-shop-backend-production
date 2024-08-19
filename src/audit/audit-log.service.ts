@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { AuditLog } from 'src/schemas/audit-log.schema';
+import { AuditLog } from '../schemas/audit-log.schema';
 
 @Injectable()
 export class AuditLogService {

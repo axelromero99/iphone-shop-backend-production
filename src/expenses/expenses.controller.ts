@@ -5,7 +5,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { ExpensesService } from './expenses.service';
 // import { CreateExpenseDto } from './dto/create-expense.dto';
 // import { UpdateExpenseDto } from './dto/update-expense.dto';
-import { AuditLog } from 'src/audit/audit-log.decorator';
+import { AuditLog } from '../audit/audit-log.decorator';
 
 @Controller('expenses')
 export class ExpensesController {

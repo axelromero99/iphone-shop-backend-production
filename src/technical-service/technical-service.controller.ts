@@ -3,7 +3,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } fro
 import { TechnicalServiceService } from './technical-service.service';
 // import { CreateTechnicalServiceDto } from './dto/create-technical-service.dto';
 // import { UpdateTechnicalServiceDto } from './dto/update-technical-service.dto';
-import { AuditLog } from 'src/audit/audit-log.decorator';
+import { AuditLog } from '../audit/audit-log.decorator';
 
 @Controller('technical-service')
 export class TechnicalServiceController {

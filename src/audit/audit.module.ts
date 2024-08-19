@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuditLog, AuditLogSchema } from 'src/schemas/audit-log.schema';
+import { AuditLog, AuditLogSchema } from '../schemas/audit-log.schema';
 import { AuditLogService } from './audit-log.service';
 import { AuditLogInterceptor } from './audit-log.interceptor';
 import { AuditLogController } from './audit-log.controller';

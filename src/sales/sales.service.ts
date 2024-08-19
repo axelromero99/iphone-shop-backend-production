@@ -7,8 +7,8 @@ import { Sale, SaleDocument } from '../schemas/sale.schema';
 // import { CreateSaleDto } from './dto/create-sale.dto';
 // import { UpdateSaleDto } from './dto/update-sale.dto';
 import { ProductsService } from '../products/products.service';
-import { PaginationService } from 'src/common/services/pagination.service';
-import { PaginationDto, SortOrder } from 'src/common/dtos/pagination.dto';
+import { PaginationService } from '../common/services/pagination.service';
+import { PaginationDto, SortOrder } from '../common/dtos/pagination.dto';
 import { CashRegisterService } from '../cash-register/cash-register.service';
 
 @Injectable()
