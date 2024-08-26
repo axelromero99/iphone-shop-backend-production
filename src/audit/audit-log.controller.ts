@@ -1,4 +1,3 @@
-// src/audit/audit-log.controller.ts
 import { Controller, Get, Param, UseGuards, Req } from '@nestjs/common';
 import { AuditLogService } from './audit-log.service';
 import { Auth } from '../auth/decorators';

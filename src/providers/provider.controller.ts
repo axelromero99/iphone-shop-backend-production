@@ -1,5 +1,4 @@
 
-// src/providers/providers.controller.ts
 import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ProvidersService } from './provider.service';
 // import { CreateProviderDto } from './dto/create-provider.dto';

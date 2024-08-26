@@ -1,4 +1,3 @@
-// src/banner/banner.controller.ts
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { BannersService } from './banner.service';
 import { FileInterceptor } from '@nestjs/platform-express';

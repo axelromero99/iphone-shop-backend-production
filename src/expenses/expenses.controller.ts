@@ -1,6 +1,5 @@
 
 
-// src/expenses/expenses.controller.ts
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
 // import { CreateExpenseDto } from './dto/create-expense.dto';

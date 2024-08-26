@@ -1,4 +1,3 @@
-// src/technical-service/technical-service.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TechnicalServiceService } from './technical-service.service';

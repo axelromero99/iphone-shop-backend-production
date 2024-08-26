@@ -1,5 +1,4 @@
 
-// src/report/report.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ReportService } from './reports.service';

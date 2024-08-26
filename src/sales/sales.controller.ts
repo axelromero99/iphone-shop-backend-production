@@ -1,5 +1,4 @@
 
-// src/sales/sales.controller.ts
 import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { SalesService } from './sales.service';
 // import { CreateSaleDto } from './dto/create-sale.dto';

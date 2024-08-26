@@ -1,4 +1,3 @@
-// src/banner/banner.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { CashRegisterService } from '../cash-register/cash-register.service';
