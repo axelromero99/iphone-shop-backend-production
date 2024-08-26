@@ -1,0 +1,81 @@
+// generate a typical html for an api
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .endpoint {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .method {
+            font-weight: bold;
+            color: #0066cc;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>API Documentation</h1>
+
+    <div class="endpoint">
+        <h2><span class="method">GET</span> /api/resource</h2>
+        <p>Description of the GET endpoint.</p>
+        <h3>Parameters:</h3>
+        <ul>
+            <li>param1: Description of param1</li>
+            <li>param2: Description of param2</li>
+        </ul>
+        <h3>Response:</h3>
+        <pre><code>
+{
+    "id": 1,
+    "name": "Example",
+    "description": "This is an example response"
+}
+        </code></pre>
+    </div>
+
+    <div class="endpoint">
+        <h2><span class="method">POST</span> /api/resource</h2>
+        <p>Description of the POST endpoint.</p>
+        <h3>Request Body:</h3>
+        <pre><code>
+{
+    "name": "New Resource",
+    "description": "Description of the new resource"
+}
+        </code></pre>
+        <h3>Response:</h3>
+        <pre><code>
+{
+    "id": 2,
+    "name": "New Resource",
+    "description": "Description of the new resource"
+}
+        </code></pre>
+    </div>
+
+    <!-- Add more endpoints as needed -->
+
+</body>
+
+</html>
