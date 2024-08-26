@@ -1,8 +1,7 @@
-// src/products/products.controller.ts
 import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { ProductTechnicalServiceService } from './product-technical-service.service';
-import { AuditLog } from 'src/audit/audit-log.decorator';
+import { AuditLog } from '../audit/audit-log.decorator';
 
 @Controller('products')
 export class ProductsController {

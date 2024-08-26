@@ -1,4 +1,3 @@
-// src/sales/sales.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SalesService } from './sales.service';

@@ -8,7 +8,7 @@ import { RoleProtected } from './decorators/role-protected.decorator';
 
 import { UserRoleGuard } from './guards/user-role.guard';
 import { ValidRoles } from './interfaces';
-import { AuditLog } from 'src/audit/audit-log.decorator';
+import { AuditLog } from '../audit/audit-log.decorator';
 
 @Controller('auth')
 export class AuthController {

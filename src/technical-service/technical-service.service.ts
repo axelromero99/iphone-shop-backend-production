@@ -2,8 +2,8 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TechnicalService, TechnicalServiceDocument } from '../schemas/technical-service.schema';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { PaginationService } from 'src/common/services/pagination.service';
+import { PaginationDto } from '../common/dtos/pagination.dto';
+import { PaginationService } from '../common/services/pagination.service';
 import { ProductTechnicalServiceService } from '../products/product-technical-service.service';
 import { CashRegisterService } from '../cash-register/cash-register.service';
 

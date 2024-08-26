@@ -1,15 +1,14 @@
 
 
-// src/provider/provider.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProvidersService } from './provider.service';
 import { ProvidersController } from './provider.controller';
 import { ProviderSchema } from '../schemas/provider.schema';
-import { CommonModule } from 'src/common/common.module';
-import { InventoryModule } from 'src/inventory/inventory.module';
-import { ProductsModule } from 'src/products/products.module';
-import { CashRegisterModule } from 'src/cash-register/cash-register.module';
+import { CommonModule } from '../common/common.module';
+import { InventoryModule } from '../inventory/inventory.module';
+import { ProductsModule } from '../products/products.module';
+import { CashRegisterModule } from '../cash-register/cash-register.module';
 
 @Module({
     imports: [

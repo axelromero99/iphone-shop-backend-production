@@ -1,11 +1,10 @@
-// src/banner/banner.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { PaginationService } from 'src/common/services/pagination.service';
-import { Banner, BannerDocument } from 'src/schemas/banner.schema';
-import { CloudinaryService } from 'src/common/services/cloudinary.service';
+import { PaginationDto } from '../common/dtos/pagination.dto';
+import { PaginationService } from '../common/services/pagination.service';
+import { Banner, BannerDocument } from '../schemas/banner.schema';
+import { CloudinaryService } from '../common/services/cloudinary.service';
 
 @Injectable()
 export class BannersService {

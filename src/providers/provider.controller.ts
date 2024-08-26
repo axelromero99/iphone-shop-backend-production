@@ -1,10 +1,9 @@
 
-// src/providers/providers.controller.ts
 import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ProvidersService } from './provider.service';
 // import { CreateProviderDto } from './dto/create-provider.dto';
 // import { UpdateProviderDto } from './dto/update-provider.dto';
-import { AuditLog } from 'src/audit/audit-log.decorator';
+import { AuditLog } from '../audit/audit-log.decorator';
 
 @Controller('providers')
 export class ProvidersController {

@@ -1,11 +1,10 @@
 
 
-// src/expenses/expenses.controller.ts
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
 // import { CreateExpenseDto } from './dto/create-expense.dto';
 // import { UpdateExpenseDto } from './dto/update-expense.dto';
-import { AuditLog } from 'src/audit/audit-log.decorator';
+import { AuditLog } from '../audit/audit-log.decorator';
 
 @Controller('expenses')
 export class ExpensesController {
