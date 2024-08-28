@@ -1,0 +1,42 @@
+
+
+° end-to-end de configuracion de evento ° 
+
+registrar usuario admin
+se loguea 
+# select bearer token
+crear establishment
+crear categoria de producto ligadas al establishment
+crear producto ligadas al establishment
+crear un stock, asignarle productos
+crear cuentas bartender ligadas al establishment
+crear cuentas operador ligadas al establishment
+crear un staff, asignarle operador y bartender
+crear un evento, asignarle staff, asignarle stock
+
+______________________________________________________
+
+° end-to-end de cliente registrado compra ° 
+se registra
+se loguea
+# select bearer token
+obtiene datos de evento
+hace checkout
+registra metodos de pago
+realiza compra 
+puede fetchear sus pedidos
+______________________________________________________
+
+
+° end-to-end de cliente invitado compra ° 
+se le pide datos identificatorios basicos: dni, nombre, numero de celular
+obtiene datos de evento
+hace checkout
+registra metodos de pago
+realiza compra 
+puede fetchear sus pedidos
+________________________________
+
+° end-to-end de bartender °
+
+
