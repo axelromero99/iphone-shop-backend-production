@@ -1,15 +1,8 @@
-import { join } from 'path';
-
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { ServeStaticModule } from '@nestjs/serve-static';
-
-import { ProductsModule } from './products/products.module';
-import { CommonModule } from './common/common.module';
-import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MailModule } from './mail/mail.module';
-
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { ProductsModule } from './products/products.module';
 
 import { SalesModule } from './sales/sales.module';
 import { TechnicalServiceModule } from './technical-service/technical-service.module';
@@ -19,28 +12,35 @@ import { ExpensesModule } from './expenses/expenses.module';
 import { CloudinaryModule } from './common/cloudinary.module';
 import { ProviderModule } from './providers/provider.module';
 import { BannersModule } from './banner/banner.module';
-// import { AuditModule } from './audit/audit.module'; // Importa el AuditModule
+import { AuditModule } from './audit/audit.module'; // Importa el AuditModule
 
 import cloudinaryConfig from './config/cloudinary.config';
+import databaseConfig from './config/database.config';
 
-
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AuditLogInterceptor } from './audit/audit-log.interceptor';
 
 @Module({
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditLogInterceptor,
+    },
+  ],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [cloudinaryConfig],
+      load: [databaseConfig, cloudinaryConfig],
     }),
-
-    MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/yourDatabaseName', {
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('database.uri'),
+      }),
+      inject: [ConfigService],
     }),
-
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
-
+    AuthModule,
     ProductsModule,
-
     SalesModule,
     TechnicalServiceModule,
     InventoryModule,
@@ -49,16 +49,7 @@ import cloudinaryConfig from './config/cloudinary.config';
     CloudinaryModule,
     ProviderModule,
     BannersModule,
-    // AuditModule,
-
-
-    CommonModule,
-
-    AuthModule,
-
-    MailModule,
-
+    AuditModule,
   ],
 })
-
 export class AppModule { }
